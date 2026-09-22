@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "personalInformation": {
+    "fullName": "Tanishq Solanki",
+    "location": "Mumbai, India",
+    "email": "tanishq.rameshsolanki@gmail.com",
+    "phone": "+91 9892220857",
+    "status": "KNOWN_FACT"
+  },
+  "education": [
+    {
+      "institution": "St. Xavier's College, Mumbai",
+      "degree": "B.Sc. Information Technology",
+      "expectedGraduationYear": 2029,
+      "relevantCoursework": [
+        "Data Structures & Algorithms",
+        "Object-Oriented Programming",
+        "Database Management Systems",
+        "Computer Networks",
+        "Web Technologies"
+      ],
+      "status": "KNOWN_FACT"
+    }
+  ],
+  "experience": [
+    {
+      "title": "Software Developer Intern",
+      "company": "Mira3D",
+      "location": "Mumbai, India",
+      "startDate": "2026-02",
+      "bullets": [
+        "Work directly with the founding team to design, build, deploy, and iterate on product features weekly based on user feedback.",
+        "Own the browser-side 3D rendering layer end-to-end: parsing STL/OBJ geometry, constructing scene graphs, and managing disposal to prevent memory leaks and session crashes on lower-end devices.",
+        "Diagnosed and resolved a cross-device rendering issue by tracing failures to WebGL context limits on mobile Safari and shipping a fallback rendering path.",
+        "Re-engineered geometry loading to progressively stream compressed GLTF/GLB assets, removing a blocking loading state from the main product flow.",
+        "Designed and shipped production WebGL animation systems using GSAP and custom GLSL shaders.",
+        "Built reusable dashboard UI infrastructure with TailwindCSS, Radix UI, WebSockets, SQL, and Supabase."
+      ],
+      "status": "KNOWN_FACT"
+    }
+  ],
+  "projects": [
+    {
+      "name": "DAWN",
+      "description": "Stateful Conversational AI Interface",
+      "date": "2026-01",
+      "url": "https://github.com/tanishqrameshsolanki-collab/DAWN",
+      "bullets": [
+        "Built a stateful conversational agent with sliding-window memory, context compression, and vector-similarity retrieval.",
+        "Designed prompt orchestration adapting response tone and depth to conversation phase.",
+        "Built a React interface with real-time SSE token streaming and tooling/trace visibility.",
+        "Reduced redundant API calls by ~18% through sub-query caching and output-schema validation before re-prompting."
+      ],
+      "status": "KNOWN_FACT"
+    },
+    {
+      "name": "Stranded-Music",
+      "description": "Full-Stack Music Streaming Platform",
+      "date": "2025-10",
+      "url": "https://github.com/tanishqrameshsolanki-collab/Stranded-music",
+      "bullets": [
+        "Built authentication, playlist CRUD, real-time playback state, and a custom Web Audio API engine.",
+        "Improved initial-load performance with Next.js dynamic imports and lazy loading; Lighthouse performance consistently exceeds 90 on cold loads.",
+        "Implemented a responsive PWA with offline queue support using service workers and cached manifests."
+      ],
+      "status": "KNOWN_FACT"
+    }
+  ],
+  "skills": {
+    "languages": [
+      "Python",
+      "TypeScript",
+      "JavaScript",
+      "SQL",
+      "GLSL",
+      "HTML/CSS"
+    ],
+    "backendAndCloud": [
+      "Node.js",
+      "Express",
+      "FastAPI",
+      "REST APIs",
+      "WebSockets",
+      "Docker (basics)",
+      "Vercel",
+      "CI/CD"
+    ],
+    "frontend": [
+      "React",
+      "Next.js",
+      "TailwindCSS",
+      "GSAP",
+      "Framer Motion",
+      "Radix UI"
+    ],
+    "dataAndAI": [
+      "PostgreSQL",
+      "MongoDB",
+      "Supabase",
+      "Firebase",
+      "FAISS",
+      "vector embeddings",
+      "OpenAI API",
+      "LangChain"
+    ],
+    "threeDAndWebGL": ["Three.js", "React Three Fiber", "WebGL", "Blender"],
+    "tools": ["Git", "Postman", "Lighthouse", "Chrome DevTools"]
+  },
+  "links": [
+    {
+      "label": "LinkedIn",
+      "url": "https://www.linkedin.com/in/tanishq-sol/",
+      "status": "KNOWN_FACT"
+    },
+    {
+      "label": "GitHub",
+      "url": "https://github.com/tanishqrameshsolanki-collab",
+      "status": "KNOWN_FACT"
+    }
+  ],
+  "preferences": {
+    "targetRoles": [
+      "Software Engineer",
+      "Full Stack Developer",
+      "Frontend Engineer",
+      "WebGL / 3D Graphics Engineer",
+      "AI / Systems Engineer"
+    ],
+    "targetCompanies": [],
+    "targetLocations": ["Mumbai, India", "Remote"],
+    "remotePreference": "PREFERRED",
+    "status": "KNOWN_FACT"
+  },
+  "constraints": {
+    "workAuthorization": "Authorized to work in India; Global Remote Contractor (W-8BEN)",
+    "sponsorship": "No sponsorship required for India or Global Remote roles",
+    "status": "KNOWN_FACT"
+  }
+}

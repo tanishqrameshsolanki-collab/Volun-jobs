@@ -1,0 +1,31 @@
+{
+  "master": {
+    "name": "resume_master",
+    "path": "data/resumes/resume_master.docx",
+    "sha256": "6A7B69E1D170CD677B65628AB8BB95BEF19DF249AB81E5B9241059A1C4EC0828",
+    "immutable": true,
+    "source": "Tanishq Solanki Resume ack.docx"
+  },
+  "variants": [
+    {
+      "name": "resume_ai",
+      "targetRole": "AI / ML / Generative AI",
+      "status": "PROPOSAL_ONLY"
+    },
+    {
+      "name": "resume_fullstack",
+      "targetRole": "Full-Stack / Software Engineering",
+      "status": "PROPOSAL_ONLY"
+    },
+    {
+      "name": "resume_graphics",
+      "targetRole": "Computer Graphics / WebGL / 3D",
+      "status": "PROPOSAL_ONLY"
+    },
+    {
+      "name": "resume_backend",
+      "targetRole": "Backend / Developer Infrastructure",
+      "status": "PROPOSAL_ONLY"
+    }
+  ]
+}

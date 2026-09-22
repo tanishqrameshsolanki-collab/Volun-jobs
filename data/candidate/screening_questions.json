@@ -1,0 +1,98 @@
+{
+  "version": "1.0.0",
+  "candidate": {
+    "fullName": "Tanishq Solanki",
+    "email": "tanishq.rameshsolanki@gmail.com",
+    "phone": "+91 9892220857",
+    "location": "Mumbai, India",
+    "college": "St. Xavier's College, Mumbai (B.Sc. Information Technology, Expected 2029)"
+  },
+  "logistics": {
+    "noticePeriod": {
+      "question": "What is your current notice period / when can you start?",
+      "suggested": "Immediate to 2 weeks",
+      "shortAnswer": "Immediate / Available within 7–14 days",
+      "fieldOptions": ["Immediate", "15 days", "1 month"]
+    },
+    "hourlyRate": {
+      "question": "What is your expected hourly rate (for contract / freelance roles)?",
+      "suggestedUSD": "$25 - $40 / hr",
+      "suggestedINR": "₹1,500 - ₹2,500 / hr",
+      "fieldAnswer": "Negotiable based on scope and role ($25-$35/hr or ₹1,500-₹2,500/hr)"
+    },
+    "monthlyCompensation": {
+      "question": "What is your expected monthly stipend / salary (for internships or contract-to-hire)?",
+      "internshipINR": "₹35,000 - ₹60,000 / month",
+      "fullTimeINR": "₹80,000 - ₹1,30,000 / month",
+      "remoteUSD": "$2,500 - $4,500 / month",
+      "fieldAnswer": "Open to discussion based on role structure and total compensation"
+    },
+    "annualCompensationCTC": {
+      "question": "What is your expected annual compensation / CTC (INR) or annual base salary (USD)?",
+      "expectedCTC_INR": "₹10,00,000 - ₹18,00,000 LPA",
+      "expectedBase_USD": "$35,000 - $60,000 / year (for global remote)",
+      "currentCTC": "Internship stipend / Open"
+    },
+    "workAuthorization": {
+      "question": "Are you legally authorized to work in India? Do you require visa sponsorship now or in the future?",
+      "authorizedInIndia": "Yes",
+      "sponsorshipRequired": "No (for India & Global Remote B2B/Contractor roles via Deel/Remote/Wise/W-8BEN). Yes for on-site US/UK/EU relocation."
+    },
+    "workArrangement": {
+      "question": "What is your preferred work arrangement (Remote / Hybrid / Onsite)?",
+      "preference": "Remote preferred, open to Hybrid / Onsite in Mumbai",
+      "willingToRelocate": "Open to relocation for compelling full-time opportunities"
+    },
+    "timezoneOverlap": {
+      "question": "Are you comfortable working with distributed teams across US, UK, or APAC timezones?",
+      "answer": "Yes, I regularly collaborate asynchronously and can provide 4-6 hours of daily overlap with US (EST/PST) or European (GMT/CET) working hours."
+    }
+  },
+  "links": {
+    "linkedin": "https://www.linkedin.com/in/tanishq-sol/",
+    "github": "https://github.com/tanishqrameshsolanki-collab"
+  },
+  "technicalScreening": {
+    "yearsOfExperience": {
+      "total": "1-2 years (including high-impact production internship and shipped full-stack/AI projects)",
+      "reactNextjs": "2 years",
+      "typescriptJavascript": "2 years",
+      "nodePython": "2 years",
+      "threejsWebgl": "1 year (production 3D rendering engine at Mira3D)",
+      "databasesSupabaseSql": "2 years"
+    }
+  },
+  "antiAiLongParagraphAnswers": {
+    "tellMeAboutYourself": {
+      "prompt": "Tell me about yourself / Walk me through your background.",
+      "voice": "Pragmatic, high-ownership, engineering-first",
+      "answer": "I’m a software engineer who loves building high-performance web applications and systems that bridge complex browser graphics with solid backend infrastructure. Currently, I'm working as a Software Developer Intern at Mira3D, where I own our browser-based 3D rendering pipeline end-to-end—parsing STL/OBJ models, streaming compressed GLTF/GLB assets, and solving real browser bottlenecks like WebGL memory disposal and iOS Safari context crashes. Beyond graphics, I spend a lot of time in full-stack TypeScript and Python: I built DAWN, a stateful AI agent system featuring context compression and vector search caching to cut redundant LLM calls by nearly 20%, and Stranded-Music, an offline-capable PWA with custom Web Audio API processing. I like moving fast in small teams, digging into flamegraphs when things get slow, and shipping code that feels instant for end users."
+    },
+    "technicalChallenge": {
+      "prompt": "Describe a difficult technical problem you solved from scratch. What was the challenge, your approach, and the result?",
+      "voice": "Deeply technical, metric-driven, authentic debugging story",
+      "answer": "At Mira3D, users on lower-spec laptops and mobile Safari were experiencing frequent browser tab crashes and severe frame drops when loading complex 3D engineering models. Opening Chrome DevTools and Safari Web Inspector revealed two distinct root causes: first, our scene-switching logic wasn’t explicitly traversing the scene graph to invoke `.dispose()` on geometries, materials, and textures, causing GPU memory to compound across sessions until the browser killed the WebGL context. Second, mobile Safari strictly limits active WebGL contexts and total texture memory, causing immediate crashes on heavy meshes. I re-architected our disposal lifecycle into an automated cleanup hook that recursively disposes of buffer attributes and unbinds textures on unmount. Then, I replaced raw geometry parsing with progressive chunked streaming of Draco-compressed GLTF assets and wrote a lightweight fallback rendering path that downsamples textures on mobile viewports. This eliminated the crash rate entirely and dropped initial scene render times by over 40%."
+    },
+    "whyThisCompany": {
+      "prompt": "Why do you want to join our company / why this role?",
+      "voice": "Direct, value-driven, avoids generic flattery",
+      "framework": "Adaptable template: mentions product complexity, engineering velocity, and immediate contribution",
+      "answer": "I’m drawn to teams solving real technical problems where software quality directly impacts the user experience, rather than surface-level CRUD apps. Looking at your engineering challenges around [Company Core Product / Engineering Focus], there’s a clear need for engineers who care deeply about performance, latency, and clean systems architecture. My background is in shipping production features directly alongside founders—handling everything from complex frontend states and WebGL rendering pipelines to resilient API design and database optimizations. I want to join a team with high engineering standards where I can take complete ownership of features, iterate rapidly based on real user feedback, and make an immediate impact on velocity from day one."
+    },
+    "ambiguityAndRapidChange": {
+      "prompt": "Tell me about a time you worked with ambiguous requirements or rapid changes in project direction.",
+      "voice": "Startup ownership, proactive communication, pragmatic de-risking",
+      "answer": "Working directly with the founding team at Mira3D, product specifications often start as high-level problem statements rather than polished PRDs. Early on, we needed a custom 3D annotation and measurement tool for customer models, but the exact interaction patterns and export format hadn't been finalized. Instead of waiting for a rigid specification, I built a fast, functional prototype in two days using Three.js raycasting and temporary UI controls. I walked the founders through the live prototype to test edge cases—like how raycasts behave on non-manifold geometries—which immediately clarified what was actually necessary versus what was over-engineering. We locked in the requirements within 48 hours, discarded unnecessary features before writing production code, and shipped the finalized feature ahead of schedule with zero technical debt."
+    },
+    "aiAndLlmExperience": {
+      "prompt": "What is your practical experience building with AI, LLMs, or modern agentic workflows?",
+      "voice": "Systems-level, cost-conscious, anti-hype",
+      "answer": "Rather than just writing simple wrapper scripts around OpenAI APIs, I focus on the systems engineering side of LLMs: latency, context window management, and deterministic output reliability. In my project DAWN, I built a stateful conversational engine with sliding-window memory and semantic compression. One of the biggest challenges was token explosion and high latency over long sessions. I solved this by implementing sub-query caching with vector embeddings (FAISS) to bypass LLM calls for repeated semantic intents, which cut redundant requests by ~18%. I also integrated Pydantic/Zod schema validation to guard downstream pipelines against malformed JSON, and streamed tokens directly to a React frontend using Server-Sent Events (SSE) so users saw immediate first-token responses in under 300ms."
+    },
+    "whyLookingForRole": {
+      "prompt": "Why are you looking for a new role right now?",
+      "voice": "Positive, growth-focused, ambitious",
+      "answer": "My time building production features at Mira3D gave me tremendous ownership and sharpened my ability to ship high-impact code under tight turnaround times. I'm now looking for my next step where I can bring that same momentum to a high-caliber team, tackle broader distributed systems or product scaling challenges, and continue growing alongside experienced senior engineers. I'm excited by environments that prioritize shipping velocity, technical excellence, and genuine user value."
+    }
+  }
+}
