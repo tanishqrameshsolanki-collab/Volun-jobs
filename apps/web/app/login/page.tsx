@@ -102,183 +102,201 @@ function LoginForm() {
   }
 
   return (
-    <main className="profile-page" style={{ maxWidth: '440px', margin: '60px auto', padding: '0 20px' }}>
-      <Link className="back" href="/" style={{ display: 'inline-block', marginBottom: '24px' }}>
-        ← Dashboard
+    <main style={{ maxWidth: '440px', margin: '48px auto', padding: '0 20px' }}>
+      <Link className="back" href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '20px', fontSize: '13px', color: 'var(--muted)', fontWeight: 500 }}>
+        ← Return to workspace
       </Link>
-      <p className="eyebrow accent">Multi-User Platform</p>
-      <h1 style={{ fontSize: '28px', margin: '8px 0 12px 0' }}>Sign in to Volun jobs</h1>
-      <p className="lead" style={{ fontSize: '14px', lineHeight: 1.5, marginBottom: '28px' }}>
-        Sign in to your private workspace. Your candidate profile, job scores,
-        application queue, and automation runs are isolated to your account.
-      </p>
 
-      {/* Google OAuth 1-Click Sign In */}
-      <button
-        type="button"
-        disabled={busy}
-        onClick={handleGoogleSignIn}
-        style={{
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '12px',
-          padding: '12px 16px',
-          borderRadius: '8px',
-          border: '1px solid var(--line)',
-          background: 'var(--surface)',
-          color: 'var(--ink)',
-          fontSize: '14px',
-          fontWeight: 600,
-          cursor: 'pointer',
-          transition: 'background 0.15s ease, border-color 0.15s ease',
-        }}
-        onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--ink)')}
-        onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--line)')}
-      >
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path
-            d="M17.64 9.20455C17.64 8.56636 17.5827 7.95273 17.4764 7.36364H9V10.845H13.8436C13.635 11.97 13.0009 12.9232 12.0477 13.5614V15.8195H14.9564C16.6582 14.2527 17.64 11.9455 17.64 9.20455Z"
-            fill="#4285F4"
-          />
-          <path
-            d="M9 18C11.43 18 13.4673 17.1941 14.9564 15.8195L12.0477 13.5614C11.2418 14.1014 10.2109 14.4205 9 14.4205C6.65591 14.4205 4.67182 12.8373 3.96409 10.71H0.957275V13.0418C2.43818 15.9832 5.48182 18 9 18Z"
-            fill="#34A853"
-          />
-          <path
-            d="M3.96409 10.71C3.78409 10.17 3.68182 9.59318 3.68182 9C3.68182 8.40682 3.78409 7.83 3.96409 7.29V4.95818H0.957275C0.347727 6.17318 0 7.54773 0 9C0 10.4523 0.347727 11.8268 0.957275 13.0418L3.96409 10.71Z"
-            fill="#FBBC05"
-          />
-          <path
-            d="M9 3.57955C10.3214 3.57955 11.5077 4.03364 12.4405 4.92545L15.0218 2.34409C13.4632 0.891818 11.4259 0 9 0C5.48182 0 2.43818 2.01682 0.957275 4.95818L3.96409 7.29C4.67182 5.16273 6.65591 3.57955 9 3.57955Z"
-            fill="#EA4335"
-          />
-        </svg>
-        Continue with Google
-      </button>
+      <div style={{ background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: '12px', padding: '32px 28px', boxShadow: 'var(--shadow-card)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+          <span className="brand-mark">V</span>
+          <span style={{ fontSize: '15px', fontWeight: 750, color: 'var(--ink)' }}>Volun jobs</span>
+        </div>
+        <h1 style={{ fontSize: '22px', fontWeight: 700, margin: '0 0 6px 0', color: 'var(--ink)' }}>
+          {isSignUp ? 'Create your workspace' : 'Sign in to your workspace'}
+        </h1>
+        <p style={{ fontSize: '13px', lineHeight: 1.5, color: 'var(--muted)', marginBottom: '24px' }}>
+          Access your private candidate pipeline, tailored resumes, and automated ATS applications.
+        </p>
 
-      {/* Divider */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          margin: '24px 0',
-        }}
-      >
-        <div style={{ flex: 1, height: '1px', background: 'var(--line)' }} />
-        <span style={{ fontSize: '12px', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-          or with email
-        </span>
-        <div style={{ flex: 1, height: '1px', background: 'var(--line)' }} />
-      </div>
-
-      {/* Password Authentication Form */}
-      <form className="editor" onSubmit={handlePasswordAuth} style={{ display: 'grid', gap: '16px' }}>
-        <label>
-          Email Address
-          <input
-            autoComplete="email"
-            required
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="candidate@example.com"
-          />
-        </label>
-        <label>
-          Password
-          <input
-            autoComplete={isSignUp ? 'new-password' : 'current-password'}
-            required
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
-          />
-        </label>
-
-        <button className="primary-button" disabled={busy} type="submit" style={{ width: '100%', padding: '12px' }}>
-          {busy
-            ? 'Please wait…'
-            : isSignUp
-              ? 'Create account & begin onboarding'
-              : 'Sign in to workspace'}{' '}
-          <span>→</span>
+        {/* Google OAuth 1-Click Sign In */}
+        <button
+          type="button"
+          disabled={busy}
+          onClick={handleGoogleSignIn}
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '12px',
+            padding: '11px 16px',
+            borderRadius: '8px',
+            border: '1px solid var(--line)',
+            background: 'var(--surface)',
+            color: 'var(--ink)',
+            fontSize: '13px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            transition: 'all 0.15s ease',
+            boxShadow: 'var(--shadow-sm)',
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--muted-light)')}
+          onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--line)')}
+        >
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M17.64 9.20455C17.64 8.56636 17.5827 7.95273 17.4764 7.36364H9V10.845H13.8436C13.635 11.97 13.0009 12.9232 12.0477 13.5614V15.8195H14.9564C16.6582 14.2527 17.64 11.9455 17.64 9.20455Z"
+              fill="#4285F4"
+            />
+            <path
+              d="M9 18C11.43 18 13.4673 17.1941 14.9564 15.8195L12.0477 13.5614C11.2418 14.1014 10.2109 14.4205 9 14.4205C6.65591 14.4205 4.67182 12.8373 3.96409 10.71H0.957275V13.0418C2.43818 15.9832 5.48182 18 9 18Z"
+              fill="#34A853"
+            />
+            <path
+              d="M3.96409 10.71C3.78409 10.17 3.68182 9.59318 3.68182 9C3.68182 8.40682 3.78409 7.83 3.96409 7.29V4.95818H0.957275C0.347727 6.17318 0 7.54773 0 9C0 10.4523 0.347727 11.8268 0.957275 13.0418L3.96409 10.71Z"
+              fill="#FBBC05"
+            />
+            <path
+              d="M9 3.57955C10.3214 3.57955 11.5077 4.03364 12.4405 4.92545L15.0218 2.34409C13.4632 0.891818 11.4259 0 9 0C5.48182 0 2.43818 2.01682 0.957275 4.95818L3.96409 7.29C4.67182 5.16273 6.65591 3.57955 9 3.57955Z"
+              fill="#EA4335"
+            />
+          </svg>
+          Continue with Google
         </button>
 
-        <div style={{ marginTop: '8px', fontSize: '13px', textAlign: 'center' }}>
-          {isSignUp ? (
-            <span>
-              Already have an account?{' '}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsSignUp(false);
-                  setError('');
-                  setMessage('');
-                }}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--accent)',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  padding: 0,
-                }}
-              >
-                Sign in
-              </button>
-            </span>
-          ) : (
-            <span>
-              Don&apos;t have an account yet?{' '}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsSignUp(true);
-                  setError('');
-                  setMessage('');
-                }}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: 'var(--accent)',
-                  fontWeight: 600,
-                  cursor: 'pointer',
-                  padding: 0,
-                }}
-              >
-                Create one now
-              </button>
-            </span>
-          )}
-        </div>
-      </form>
-
-      {error && (
-        <p
+        {/* Divider */}
+        <div
           style={{
-            marginTop: 20,
-            color: '#dc2626',
-            fontSize: '14px',
-            fontWeight: 500,
-            background: '#fef2f2',
-            border: '1px solid #fecaca',
-            padding: '10px 14px',
-            borderRadius: '6px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            margin: '20px 0',
           }}
-          role="alert"
         >
-          ⚠️ {error}
-        </p>
-      )}
-      {message && (
-        <p className="save-status" role="status" style={{ marginTop: 20 }}>
-          {message}
-        </p>
-      )}
+          <div style={{ flex: 1, height: '1px', background: 'var(--line)' }} />
+          <span style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 600 }}>
+            or with email
+          </span>
+          <div style={{ flex: 1, height: '1px', background: 'var(--line)' }} />
+        </div>
+
+        {/* Password Authentication Form */}
+        <form className="editor" onSubmit={handlePasswordAuth} style={{ display: 'grid', gap: '14px' }}>
+          <label>
+            Email Address
+            <input
+              autoComplete="email"
+              required
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="candidate@example.com"
+            />
+          </label>
+          <label>
+            Password
+            <input
+              autoComplete={isSignUp ? 'new-password' : 'current-password'}
+              required
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+            />
+          </label>
+
+          <button className="primary-button" disabled={busy} type="submit" style={{ width: '100%', padding: '11px', marginTop: '6px' }}>
+            {busy
+              ? 'Please wait…'
+              : isSignUp
+                ? 'Create account & begin onboarding'
+                : 'Sign in to workspace'}{' '}
+            <span>→</span>
+          </button>
+
+          <div style={{ marginTop: '8px', fontSize: '13px', textAlign: 'center' }}>
+            {isSignUp ? (
+              <span style={{ color: 'var(--muted)' }}>
+                Already have an account?{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsSignUp(false);
+                    setError('');
+                    setMessage('');
+                  }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--ink)',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    padding: 0,
+                    textDecoration: 'underline',
+                  }}
+                >
+                  Sign in
+                </button>
+              </span>
+            ) : (
+              <span style={{ color: 'var(--muted)' }}>
+                Don&apos;t have an account yet?{' '}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsSignUp(true);
+                    setError('');
+                    setMessage('');
+                  }}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--ink)',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    padding: 0,
+                    textDecoration: 'underline',
+                  }}
+                >
+                  Create one now
+                </button>
+              </span>
+            )}
+          </div>
+        </form>
+
+        {error && (
+          <div
+            style={{
+              marginTop: 18,
+              color: '#991b1b',
+              fontSize: '13px',
+              fontWeight: 500,
+              background: '#fef2f2',
+              border: '1px solid #fecaca',
+              padding: '10px 14px',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '8px',
+            }}
+            role="alert"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ flexShrink: 0, marginTop: '2px' }}>
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="12"></line>
+              <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+            <span>{error}</span>
+          </div>
+        )}
+        {message && (
+          <p className="save-status" role="status" style={{ marginTop: 18, fontSize: '13px', fontWeight: 600 }}>
+            {message}
+          </p>
+        )}
+      </div>
     </main>
   );
 }

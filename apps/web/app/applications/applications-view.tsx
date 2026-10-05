@@ -77,8 +77,9 @@ export function ApplicationsView({ initialApplications }: ApplicationsViewProps)
     <div className="applications-container">
       {/* Toast Feedback */}
       {toastMessage && (
-        <div className="app-toast" role="status">
-          ✓ {toastMessage}
+        <div className="app-toast" role="status" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          {toastMessage}
         </div>
       )}
 
@@ -187,14 +188,16 @@ export function ApplicationsView({ initialApplications }: ApplicationsViewProps)
         </div>
       ) : (
         <div className="empty-state">
-          <span className="empty-icon">📁</span>
-          <h3>No applications in this pipeline stage.</h3>
-          <p>
+          <span className="empty-icon" style={{ background: 'var(--line-subtle)', borderRadius: '8px', width: '38px', height: '38px', margin: '0 auto 12px', display: 'grid', placeItems: 'center' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+          </span>
+          <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ink)' }}>No applications in this pipeline stage</h3>
+          <p style={{ color: 'var(--muted)', fontSize: '13px', margin: '4px auto 16px', maxWidth: '440px' }}>
             {activeStage === 'ALL'
               ? 'You have not added or qualified any applications yet. Scan public opportunities or review recommended roles.'
               : `No applications currently have status "${activeStage.replaceAll('_', ' ')}".`}
           </p>
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
             <Link href="/jobs" className="primary-button">
               Explore Discovered Jobs <span>→</span>
             </Link>

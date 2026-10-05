@@ -173,9 +173,11 @@ export function InterviewsView({ initialInterviews, profile }: InterviewsViewPro
             </div>
           ) : (
             <div className="empty-state">
-              <span className="empty-icon">📅</span>
-              <h3>No interviews currently scheduled.</h3>
-              <p>
+              <span className="empty-icon" style={{ background: 'var(--line-subtle)', borderRadius: '8px', width: '38px', height: '38px', margin: '0 auto 12px', display: 'grid', placeItems: 'center' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              </span>
+              <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ink)' }}>No interviews currently scheduled</h3>
+              <p style={{ color: 'var(--muted)', fontSize: '13px', margin: '4px auto 16px', maxWidth: '440px' }}>
                 When an application reaches the interview round, or when a recruiter contacts you, log it here to track preparation notes and grounded facts.
               </p>
               <button

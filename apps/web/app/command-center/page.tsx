@@ -346,14 +346,14 @@ export default function CommandCenter() {
             </>
           ) : (
             <>
-              <span>Sign-in required for database operations</span>
-              <button
-                className="quick-login-btn"
-                onClick={quickLogin}
-                type="button"
+              <span>Sign in to run private operations</span>
+              <Link
+                href="/login"
+                className="primary-button"
+                style={{ padding: '5px 12px', fontSize: '11px' }}
               >
-                1-Click Sign In
-              </button>
+                Sign In
+              </Link>
             </>
           )}
         </div>

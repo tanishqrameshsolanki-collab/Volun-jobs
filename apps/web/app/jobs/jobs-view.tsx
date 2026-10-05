@@ -64,14 +64,16 @@ export function JobsView({ initialOpportunities }: JobsViewProps) {
             className={`pill-btn ${filterHighMatch ? 'active' : ''}`}
             onClick={() => setFilterHighMatch(!filterHighMatch)}
           >
-            ★ High Match (80%+)
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '6px' }}><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+            High Match (80%+)
           </button>
           <button
             type="button"
             className={`pill-btn ${filterRemote ? 'active' : ''}`}
             onClick={() => setFilterRemote(!filterRemote)}
           >
-            🌐 Remote Only
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '6px' }}><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+            Remote Only
           </button>
           <select
             value={eligibilityFilter}
@@ -151,7 +153,8 @@ export function JobsView({ initialOpportunities }: JobsViewProps) {
                   <div className="tags-row">
                     {opp.whyItMatches.slice(0, 3).map((strength) => (
                       <span key={strength} className="strength-pill">
-                        ✓ {strength}
+                        <span style={{ color: 'var(--match-emerald)', marginRight: 5, fontSize: '10px' }}>●</span>
+                        {strength}
                       </span>
                     ))}
                   </div>
@@ -186,9 +189,11 @@ export function JobsView({ initialOpportunities }: JobsViewProps) {
         </div>
       ) : (
         <div className="empty-state">
-          <span className="empty-icon">🔍</span>
-          <h3>No opportunities match your current filters.</h3>
-          <p>
+          <span className="empty-icon" style={{ background: 'var(--line-subtle)', borderRadius: '8px', width: '38px', height: '38px', margin: '0 auto 12px', display: 'grid', placeItems: 'center' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </span>
+          <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ink)' }}>No opportunities match your current filters</h3>
+          <p style={{ color: 'var(--muted)', fontSize: '13px', margin: '4px auto 16px', maxWidth: '440px' }}>
             Try adjusting your search terms, clearing filters, or running a fresh scan from the Command Center.
           </p>
           <button

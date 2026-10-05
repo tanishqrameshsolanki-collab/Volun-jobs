@@ -16,13 +16,15 @@ export default function ReviewQueue({
 
   if (opportunities.length === 0) {
     return (
-      <div className="quiet-state" style={{ padding: '48px 24px', textAlign: 'center', maxWidth: '640px', margin: '32px auto' }}>
-        <div style={{ fontSize: '36px', marginBottom: '16px' }}>✓</div>
-        <h2 style={{ fontSize: '20px', fontWeight: 600, margin: '0 0 8px 0' }}>All Caught Up</h2>
-        <p style={{ color: 'var(--muted)', fontSize: '14px', lineHeight: 1.5, margin: '0 0 24px 0' }}>
+      <div className="quiet-state" style={{ padding: '48px 24px', textAlign: 'center', maxWidth: '600px', margin: '32px auto', background: 'var(--surface)', border: '1px solid var(--line)', borderRadius: '12px', boxShadow: 'var(--shadow-card)' }}>
+        <div style={{ width: '44px', height: '44px', borderRadius: '50%', background: 'var(--match-emerald-bg)', border: '1px solid var(--match-emerald-border)', color: 'var(--match-emerald)', display: 'grid', placeItems: 'center', margin: '0 auto 16px' }}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
+        <h2 style={{ fontSize: '18px', fontWeight: 700, margin: '0 0 8px 0', color: 'var(--ink)' }}>All Caught Up</h2>
+        <p style={{ color: 'var(--muted)', fontSize: '13px', lineHeight: 1.5, margin: '0 0 24px 0' }}>
           No applications are currently awaiting human approval. Once you scan and score new opportunities, high-matching roles will appear here with tailored cover letters and resume variants for your review.
         </p>
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
           <Link href="/jobs" className="primary-button" style={{ textDecoration: 'none' }}>
             Explore Available Jobs →
           </Link>
@@ -79,8 +81,9 @@ export default function ReviewQueue({
   return (
     <div className="review-list" suppressHydrationWarning>
       {error && (
-        <div style={{ background: '#fef2f2', border: '1px solid #f87171', color: '#991b1b', padding: '12px 16px', borderRadius: '8px', marginBottom: '20px', fontSize: '14px' }}>
-          ⚠️ {error}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', padding: '12px 16px', borderRadius: '8px', marginBottom: '20px', fontSize: '13px', fontWeight: 500 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          {error}
         </div>
       )}
 
@@ -93,9 +96,11 @@ export default function ReviewQueue({
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
               <div>
                 <p className="company-name">{opportunity.company}</p>
-                <h2 style={{ margin: '4px 0 8px 0', fontSize: '20px' }}>{opportunity.title}</h2>
+                <h2 style={{ margin: '4px 0 8px 0', fontSize: '19px', fontWeight: 600 }}>{opportunity.title}</h2>
                 <p className="review-meta">
-                  <span style={{ fontWeight: 600, color: 'var(--ink)' }}>{opportunity.matchScore}% Match</span>
+                  <span style={{ fontWeight: 700, color: 'var(--match-emerald)', background: 'var(--match-emerald-bg)', border: '1px solid var(--match-emerald-border)', padding: '2px 7px', borderRadius: '4px', fontSize: '12px', fontFamily: 'JetBrains Mono, monospace' }}>
+                    {opportunity.matchScore}% Match
+                  </span>
                   {' · '}
                   <span style={{ textTransform: 'capitalize' }}>
                     {opportunity.eligibility.toLowerCase().replace('_', ' ')}

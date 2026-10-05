@@ -1,11 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 :root {
-  --ink: #18221f;
-  --muted: #74807b;
-  --line: #e7ece8;
-  --surface: #fff;
-  --wash: #f7faf8;
-  --accent: #246b55;
-  --accent-soft: #e5f2eb;
+  --ink: #0f172a;
+  --ink-secondary: #334155;
+  --muted: #64748b;
+  --muted-light: #94a3b8;
+  --line: #e2e8f0;
+  --line-subtle: #f1f5f9;
+  --surface: #ffffff;
+  --surface-hover: #f8fafc;
+  --wash: #f8fafc;
+  --accent: #0f172a;
+  --accent-soft: #f1f5f9;
+  --primary: #0f172a;
+  --primary-hover: #1e293b;
+  --match-emerald: #059669;
+  --match-emerald-bg: #ecfdf5;
+  --match-emerald-border: #a7f3d0;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.02);
+  --shadow-hover: 0 6px 16px -2px rgb(0 0 0 / 0.07), 0 2px 6px -2px rgb(0 0 0 / 0.03);
 }
 * {
   box-sizing: border-box;
@@ -17,13 +31,15 @@ body {
   background: var(--wash);
   color: var(--ink);
   font-family:
-    Inter,
-    ui-sans-serif,
-    system-ui,
+    'Plus Jakarta Sans',
     -apple-system,
     BlinkMacSystemFont,
     'Segoe UI',
+    Roboto,
     sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 button,
 a {
@@ -41,7 +57,7 @@ a {
   width: 240px;
   border-right: 1px solid var(--line);
   background: var(--surface);
-  padding: 30px 20px;
+  padding: 24px 16px;
   display: flex;
   flex-direction: column;
 }
@@ -52,52 +68,62 @@ a {
   font-size: 13px;
   line-height: 1.15;
   letter-spacing: -0.02em;
-  margin: 0 10px 54px;
+  margin: 0 8px 36px;
 }
 .brand b {
   font-size: 15px;
+  font-weight: 700;
+  color: var(--ink);
 }
 .brand-mark {
   display: grid;
   place-items: center;
-  width: 31px;
-  height: 31px;
-  border-radius: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
   color: #fff;
-  background: var(--accent);
-  font-weight: 700;
-  font-size: 17px;
+  background: var(--primary);
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: -0.02em;
 }
 nav,
 .sidebar-bottom {
   display: grid;
-  gap: 6px;
+  gap: 4px;
 }
 .sidebar a {
-  padding: 11px 12px;
-  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 8px;
   color: var(--muted);
   font-size: 13px;
+  font-weight: 500;
+  transition: all 120ms ease;
 }
 .sidebar a.active,
 .sidebar a:hover {
   background: var(--accent-soft);
-  color: var(--accent);
+  color: var(--ink);
   font-weight: 600;
 }
 .sidebar-bottom {
   margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
 }
 .content {
   width: min(1180px, 100%);
   margin: 0 auto;
-  padding: 38px 52px 70px;
+  padding: 36px 48px 70px;
 }
 .topbar {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 30px;
+  margin-bottom: 28px;
 }
 h1,
 h2,
@@ -106,16 +132,18 @@ p {
   margin: 0;
 }
 h1 {
-  font-size: 30px;
-  letter-spacing: -0.045em;
+  font-size: 28px;
+  letter-spacing: -0.035em;
+  font-weight: 700;
+  color: var(--ink);
 }
 .eyebrow {
   color: var(--muted);
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  margin-bottom: 9px;
+  margin-bottom: 6px;
 }
 .profile {
   display: grid;
@@ -123,65 +151,91 @@ h1 {
   border: 1px solid var(--line);
   background: #fff;
   border-radius: 50%;
-  width: 38px;
-  height: 38px;
-  color: var(--accent);
+  width: 36px;
+  height: 36px;
+  color: var(--ink);
   font-weight: 700;
+  font-size: 13px;
 }
 .accent {
-  color: var(--accent);
+  color: var(--ink);
 }
 .hero {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  padding: 34px 36px;
-  border: 1px solid #dfeae2;
-  border-radius: 16px;
-  background: linear-gradient(110deg, #edf7f0, #fff);
+  align-items: center;
+  padding: 26px 30px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  margin-bottom: 24px;
 }
 .hero h2 {
-  font-size: 28px;
-  letter-spacing: -0.045em;
-  margin-bottom: 9px;
+  font-size: 22px;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
 }
 .hero-copy {
-  color: #5e6b65;
+  color: var(--muted);
   font-size: 14px;
-  max-width: 530px;
-  line-height: 1.6;
+  max-width: 560px;
+  line-height: 1.5;
 }
 .primary-button,
 .secondary-button {
-  border: 0;
-  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
   cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 140ms ease;
+  white-space: nowrap;
 }
 .primary-button {
-  background: var(--accent);
-  color: white;
-  padding: 12px 16px;
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
+  background: var(--primary);
+  color: #ffffff;
+  padding: 10px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.12);
+}
+.primary-button:hover {
+  background: var(--primary-hover);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.14);
+}
+.secondary-button {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  padding: 9px 16px;
+  box-shadow: var(--shadow-sm);
+}
+.secondary-button:hover {
+  background: var(--surface-hover);
+  border-color: var(--muted-light);
 }
 .primary-button span,
 .secondary-button span {
   margin-left: 8px;
-  font-size: 16px;
+  font-size: 14px;
 }
 .metrics {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  margin: 27px 0 51px;
+  margin: 24px 0 44px;
   border: 1px solid var(--line);
-  border-radius: 13px;
+  border-radius: 12px;
   background: #fff;
+  box-shadow: var(--shadow-card);
   overflow: hidden;
 }
 .metric {
-  min-height: 82px;
-  padding: 16px;
+  min-height: 76px;
+  padding: 14px 16px;
   border-right: 1px solid var(--line);
   display: flex;
   flex-direction: column;
@@ -193,11 +247,16 @@ h1 {
 .metric span {
   color: var(--muted);
   font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 .metric strong {
-  font-size: 25px;
-  letter-spacing: -0.04em;
-  font-weight: 650;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 23px;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  color: var(--ink);
 }
 .section-heading {
   display: flex;
@@ -545,71 +604,80 @@ h1 {
 }
 /* Attention Strip */
 .attention-strip {
-  margin: 28px 0;
-  background: #fff;
+  margin: 24px 0 32px;
+  background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 22px 24px;
+  border-radius: 12px;
+  padding: 20px 24px;
+  box-shadow: var(--shadow-card);
 }
 .attention-header {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 .attention-header h3 {
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 .attention-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
+  gap: 12px;
 }
 .attention-card {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   background: var(--wash);
   border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 16px;
+  border-radius: 8px;
+  padding: 14px 16px;
   text-decoration: none;
-  transition: all 180ms ease;
+  transition: all 140ms ease;
 }
 .attention-card:hover {
-  background: #fff;
-  border-color: var(--accent);
-  box-shadow: 0 4px 12px rgba(36, 107, 85, 0.08);
+  background: #ffffff;
+  border-color: var(--ink);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-card);
 }
 .attention-icon {
-  font-size: 20px;
   display: grid;
   place-items: center;
-  width: 38px;
-  height: 38px;
-  background: #fff;
-  border-radius: 8px;
+  width: 34px;
+  height: 34px;
+  background: #ffffff;
+  border-radius: 7px;
   border: 1px solid var(--line);
+  color: var(--ink);
   flex-shrink: 0;
 }
 .attention-card strong {
   display: block;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--ink);
   line-height: 1.3;
 }
 .attention-card p {
   font-size: 12px;
   color: var(--muted);
-  margin-top: 3px;
+  margin-top: 2px;
 }
 .attention-arrow {
   margin-left: auto;
-  color: var(--accent);
-  font-weight: 700;
-  font-size: 16px;
+  color: var(--muted-light);
+  font-size: 14px;
+  transition: all 140ms ease;
+}
+.attention-card:hover .attention-arrow {
+  color: var(--ink);
+  transform: translateX(2px);
 }
 
 /* Toast Notification */
