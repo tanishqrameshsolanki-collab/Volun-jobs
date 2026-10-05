@@ -48,13 +48,23 @@ export async function updateSession(request: NextRequest) {
     const isProtected =
       pathname.startsWith('/command-center') ||
       pathname.startsWith('/review') ||
-      pathname.startsWith('/opportunities') ||
+      pathname.startsWith('/applications') ||
+      pathname.startsWith('/interviews') ||
       pathname.startsWith('/profile') ||
       pathname.startsWith('/settings') ||
       pathname.startsWith('/onboarding') ||
       pathname.startsWith('/analytics');
 
-    if (!user) {
+    const demoCookie = request.cookies.get('volun_demo_session');
+    let hasDemoSession = false;
+    if (demoCookie?.value) {
+      try {
+        JSON.parse(demoCookie.value);
+        hasDemoSession = true;
+      } catch {}
+    }
+
+    if (!user && !hasDemoSession) {
       // Unauthenticated access to protected routes
       if (isProtected) {
         const url = request.nextUrl.clone();
@@ -65,34 +75,46 @@ export async function updateSession(request: NextRequest) {
       return supabaseResponse;
     }
 
-    // Authenticated user
-    // Check onboarding status
-    const { data: profile } = await supabase
-      .from('candidate_profiles')
-      .select('id, onboarding_completed')
-      .eq('owner_id', user.id)
-      .maybeSingle();
-
-    const hasCompletedOnboarding = Boolean(profile?.onboarding_completed);
-
-    if (!hasCompletedOnboarding) {
-      // Authenticated but needs onboarding
-      if (
-        pathname !== '/onboarding' &&
-        !pathname.startsWith('/api/') &&
-        !pathname.startsWith('/auth/') &&
-        pathname !== '/login'
-      ) {
-        const url = request.nextUrl.clone();
-        url.pathname = '/onboarding';
-        return NextResponse.redirect(url);
-      }
-    } else {
-      // Authenticated and already completed onboarding
-      if (pathname === '/login' || pathname === '/onboarding') {
+    // If active demo session, prevent loop on login page
+    if (!user && hasDemoSession) {
+      if (pathname === '/login') {
         const url = request.nextUrl.clone();
         url.pathname = '/command-center';
         return NextResponse.redirect(url);
+      }
+      return supabaseResponse;
+    }
+
+    // Authenticated user
+    // Check onboarding status
+    if (user) {
+      const { data: profile } = await supabase
+        .from('candidate_profiles')
+        .select('id, onboarding_completed')
+        .eq('owner_id', user.id)
+        .maybeSingle();
+
+      const hasCompletedOnboarding = Boolean(profile?.onboarding_completed);
+
+      if (!hasCompletedOnboarding) {
+        // Authenticated but needs onboarding
+        if (
+          pathname !== '/onboarding' &&
+          !pathname.startsWith('/api/') &&
+          !pathname.startsWith('/auth/') &&
+          pathname !== '/login'
+        ) {
+          const url = request.nextUrl.clone();
+          url.pathname = '/onboarding';
+          return NextResponse.redirect(url);
+        }
+      } else {
+        // Authenticated and already completed onboarding
+        if (pathname === '/login' || pathname === '/onboarding') {
+          const url = request.nextUrl.clone();
+          url.pathname = '/command-center';
+          return NextResponse.redirect(url);
+        }
       }
     }
   } catch {

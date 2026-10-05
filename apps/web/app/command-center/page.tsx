@@ -113,7 +113,7 @@ export default function CommandCenter() {
       const response = await fetch('/api/auth/quick-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: 'tanishq.rameshsolanki@gmail.com' }),
+        body: JSON.stringify({ email: userEmail || 'candidate@volunjobs.com' }),
       });
       const data = (await response.json()) as {
         success?: boolean;
@@ -123,7 +123,7 @@ export default function CommandCenter() {
       if (!response.ok || !data.success) {
         throw new Error(data.error ?? 'Quick sign in failed');
       }
-      setUserEmail(data.user?.email ?? 'tanishq.rameshsolanki@gmail.com');
+      setUserEmail(data.user?.email ?? 'candidate@volunjobs.com');
       setStatus('Successfully signed in as ' + (data.user?.email ?? 'candidate') + '. You can now run all operations.');
       await loadPipelineStatus();
     } catch (error) {

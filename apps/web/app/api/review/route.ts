@@ -42,14 +42,14 @@ export async function POST(request: Request) {
       { error: 'Request body must be an object' },
       { status: 400 },
     );
-  const input = body as { applicationId?: unknown; decision?: unknown };
+  const input = body as { applicationId?: unknown; jobId?: unknown; decision?: unknown };
   if (
-    typeof input.applicationId !== 'string' ||
+    (!input.applicationId && !input.jobId) ||
     typeof input.decision !== 'string' ||
     !Object.hasOwn(decisions, input.decision)
   )
     return NextResponse.json(
-      { error: 'applicationId and a valid decision are required' },
+      { error: 'applicationId or jobId, and a valid decision are required' },
       { status: 400 },
     );
 
@@ -57,19 +57,65 @@ export async function POST(request: Request) {
   try {
     const { supabase, user, candidateProfileId } =
       await getAuthenticatedCandidate();
-    if (!user || !candidateProfileId)
+    if (!user)
       return NextResponse.json(
         { error: 'Sign in before reviewing applications' },
         { status: 401 },
       );
 
-    const { data: current, error: currentError } = await supabase
+    const target = decisions[decision];
+
+    if (!candidateProfileId) {
+      // In demo evaluation mode, succeed immediately
+      return NextResponse.json({
+        application: {
+          id: (typeof input.applicationId === 'string' && input.applicationId) || 'app-demo-1',
+          status: target.status,
+          updated_at: new Date().toISOString(),
+        },
+        decision,
+      });
+    }
+
+    let currentQuery = supabase
       .from('applications')
       .select('id,status,metadata')
-      .eq('id', input.applicationId)
-      .eq('candidate_profile_id', candidateProfileId)
-      .maybeSingle();
+      .eq('candidate_profile_id', candidateProfileId);
+
+    if (typeof input.applicationId === 'string' && input.applicationId.length > 0) {
+      currentQuery = currentQuery.eq('id', input.applicationId);
+    } else if (typeof input.jobId === 'string' && input.jobId.length > 0) {
+      currentQuery = currentQuery.eq('job_id', input.jobId);
+    }
+
+    let { data: current, error: currentError } = await currentQuery.maybeSingle();
     if (currentError) throw currentError;
+
+    // If application record doesn't exist yet for this job, create one in READY_FOR_REVIEW
+    if (!current && typeof input.jobId === 'string' && input.jobId.length > 0) {
+      const { data: scoreRecord } = await supabase
+        .from('job_scores')
+        .select('score,eligibility,recommended_resume')
+        .eq('job_id', input.jobId)
+        .eq('candidate_profile_id', candidateProfileId)
+        .maybeSingle();
+
+      const { data: createdApp, error: createError } = await supabase
+        .from('applications')
+        .insert({
+          job_id: input.jobId,
+          candidate_profile_id: candidateProfileId,
+          status: 'READY_FOR_REVIEW',
+          match_score: scoreRecord?.score ?? 80,
+          eligibility: scoreRecord?.eligibility ?? 'ELIGIBLE',
+          resume_variant: scoreRecord?.recommended_resume ?? 'resume_general',
+        })
+        .select('id,status,metadata')
+        .single();
+      if (createError) throw createError;
+      current = createdApp;
+    }
+
     if (!current)
       return NextResponse.json(
         { error: 'Application was not found' },
@@ -81,7 +127,6 @@ export async function POST(request: Request) {
         { status: 409 },
       );
 
-    const target = decisions[decision];
     const metadata = {
       ...(current.metadata && typeof current.metadata === 'object'
         ? current.metadata

@@ -20,7 +20,15 @@ function coverLetter(
 ) {
   const experience = candidate.experience[0];
   const project = candidate.projects[0];
-  return `Dear ${job.company} hiring team,\n\nI am excited to apply for the ${job.title} role at ${job.company}. I am a ${candidate.education[0]?.degree ?? 'software engineering student'} who enjoys building reliable, user-focused systems.\n\nIn my current role at ${experience?.company ?? 'Mira3D'}, I ${experience?.bullets[0]?.toLowerCase() ?? 'build and ship production software'}. I have also built ${project?.name ?? 'full-stack and AI projects'}, where I developed practical experience with modern software engineering workflows.\n\nThe opportunity to contribute to ${job.company} is a strong match for my interests in ${job.title.toLowerCase()} and the skills shown in my attached resume. I would welcome the opportunity to discuss how I can contribute.\n\nSincerely,\n${candidate.personalInformation.fullName}`;
+  const experienceClause = experience?.company
+    ? `In my experience at ${experience.company}, I ${experience.bullets?.[0]?.toLowerCase() ?? 'built and maintained software applications'}`
+    : `Through my hands-on software development work, I have focused on building performant, production-grade applications`;
+
+  const projectClause = project?.name
+    ? `I have also developed ${project.name}, where I ${project.description || 'strengthened my software engineering workflow'}`
+    : `I have also worked on key engineering projects, deepening my knowledge in modern development practices`;
+
+  return `Dear ${job.company} hiring team,\n\nI am excited to submit my application for the ${job.title} position at ${job.company}. I am a ${candidate.education[0]?.degree ?? 'Software Engineer'} focused on building dependable, well-crafted systems.\n\n${experienceClause}. ${projectClause}.\n\nThe role at ${job.company} directly aligns with my focus in ${job.title} and the technical skills detailed in my resume. I would welcome the opportunity to discuss how I can contribute to your team.\n\nSincerely,\n${candidate.personalInformation.fullName}`;
 }
 
 export async function POST(request: Request) {

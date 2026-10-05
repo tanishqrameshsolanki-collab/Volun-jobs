@@ -1,6 +1,7 @@
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
+import { existsSync } from 'node:fs';
 import { NextResponse } from 'next/server';
 import { getAuthenticatedCandidate } from '../../../../lib/opportunity-data';
 
@@ -32,9 +33,13 @@ export async function POST() {
       });
     }
 
-    // Run the Playwright automation script to fill forms and capture verification proofs
-    const rootDir = process.cwd();
-    const scriptPath = path.join(rootDir, 'scripts', 'apply-approved.mjs');
+    // Resolve script path whether Next.js is run from root or from apps/web
+    const scriptCandidates: string[] = [
+      path.join(process.cwd(), 'scripts', 'apply-approved.mjs'),
+      path.resolve(process.cwd(), '..', '..', 'scripts', 'apply-approved.mjs'),
+    ];
+    const scriptPath: string = scriptCandidates.find((p) => existsSync(p)) ?? scriptCandidates[0]!;
+    const executionCwd = path.dirname(path.dirname(scriptPath));
     
     let stdout = '';
     let stderr = '';
@@ -42,7 +47,7 @@ export async function POST() {
       const result = await execAsync(
         `node "${scriptPath}" --candidate-profile-id "${candidateProfileId}" --limit 2`,
         {
-          cwd: rootDir,
+          cwd: executionCwd,
           timeout: 60000,
         },
       );

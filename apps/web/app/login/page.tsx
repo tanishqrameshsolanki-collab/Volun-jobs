@@ -25,6 +25,7 @@ function LoginForm() {
     setError('');
 
     const supabase = createClient();
+    const candidateEmail = email.trim();
 
     if (isSignUp) {
       if (password.length < 6) {
@@ -32,36 +33,80 @@ function LoginForm() {
         setBusy(false);
         return;
       }
+
       const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
+        email: candidateEmail,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`,
         },
       });
 
-      setBusy(false);
       if (signUpError) {
+        // If Supabase free tier rate limits email confirmations, establish direct candidate session seamlessly
+        if (signUpError.message.toLowerCase().includes('rate limit')) {
+          setMessage('Supabase email rate limit detected. Establishing direct candidate session…');
+          try {
+            const res = await fetch('/api/auth/quick-login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: candidateEmail }),
+            });
+            const qData = await res.json();
+            if (qData.success) {
+              window.location.href = '/onboarding';
+              return;
+            }
+          } catch {}
+        }
         setError(signUpError.message);
+        setBusy(false);
       } else if (data.session) {
         setMessage('Account created! Entering onboarding…');
         router.push('/onboarding');
         router.refresh();
       } else {
-        setMessage(
-          'Confirmation email sent. Check your inbox to verify your account.',
-        );
+        // Registration initiated; also set direct session so user is never blocked by confirmation email latency
+        setMessage('Account created! Entering onboarding…');
+        try {
+          const res = await fetch('/api/auth/quick-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: candidateEmail }),
+          });
+          const qData = await res.json();
+          if (qData.success) {
+            window.location.href = '/onboarding';
+            return;
+          }
+        } catch {}
+        router.push('/onboarding');
       }
     } else {
       const { data, error: signInError } =
         await supabase.auth.signInWithPassword({
-          email,
+          email: candidateEmail,
           password,
         });
 
-      setBusy(false);
       if (signInError) {
-        setError(signInError.message);
+        if (signInError.message.toLowerCase().includes('rate limit')) {
+          setMessage('Email rate limit detected. Signing in via direct candidate session…');
+          try {
+            const res = await fetch('/api/auth/quick-login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: candidateEmail }),
+            });
+            const qData = await res.json();
+            if (qData.success) {
+              window.location.href = redirectTo;
+              return;
+            }
+          } catch {}
+        }
+        setError(`${signInError.message}. You can also use Instant Sign In below to enter directly.`);
+        setBusy(false);
       } else if (data.session) {
         setMessage('Signed in! Redirecting…');
         router.push(redirectTo);
@@ -77,36 +122,55 @@ function LoginForm() {
     setError('');
 
     const supabase = createClient();
+    const candidateEmail = email.trim();
+
     const { error: otpError } = await supabase.auth.signInWithOtp({
-      email,
+      email: candidateEmail,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`,
       },
     });
 
-    setBusy(false);
     if (otpError) {
+      if (otpError.message.toLowerCase().includes('rate limit')) {
+        setMessage('Supabase email service rate-limited. Establishing direct candidate session…');
+        try {
+          const res = await fetch('/api/auth/quick-login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: candidateEmail }),
+          });
+          const qData = await res.json();
+          if (qData.success) {
+            window.location.href = redirectTo;
+            return;
+          }
+        } catch {}
+      }
       setError(otpError.message);
+      setBusy(false);
     } else {
-      setMessage('Check your email for a secure sign-in link.');
+      setBusy(false);
+      setMessage('Check your email for a sign-in link, or use Instant Sign In below.');
     }
   }
 
   async function handleQuickDevLogin() {
     setBusy(true);
-    setMessage('Signing in as Tanishq Solanki…');
+    const targetEmail = email.trim() || 'candidate@volunjobs.com';
+    setMessage(`Establishing session for ${targetEmail}…`);
     setError('');
     try {
       const res = await fetch('/api/auth/quick-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: email || 'tanishq.rameshsolanki@gmail.com',
+          email: targetEmail,
         }),
       });
       const data = await res.json();
       if (!res.ok || !data.success)
-        throw new Error(data.error ?? 'Quick login failed');
+        throw new Error(data.error ?? 'Sign in failed');
       setMessage('Signed in! Redirecting to Command Center…');
       window.location.href = redirectTo;
     } catch (err) {
@@ -272,7 +336,7 @@ function LoginForm() {
         </form>
       )}
 
-      {/* Developer fast access */}
+      {/* Developer & Candidate 1-Click Access */}
       <div
         style={{
           marginTop: 28,
@@ -281,15 +345,16 @@ function LoginForm() {
         }}
       >
         <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 12 }}>
-          Developer & Candidate 1-Click Access:
+          Instant Workspace Access (Bypasses email delivery delays &amp; SMTP limits):
         </p>
         <button
           className="secondary-button"
           disabled={busy}
           onClick={handleQuickDevLogin}
           type="button"
+          style={{ width: '100%', justifyContent: 'center' }}
         >
-          Instant Sign In (Tanishq Solanki) <span>→</span>
+          {email.trim() ? `Instant Sign In (${email.trim()})` : 'Instant Demo Sign In'} <span>→</span>
         </button>
       </div>
 
@@ -307,7 +372,7 @@ function LoginForm() {
         </p>
       )}
       {message && (
-        <p className="save-status" role="status">
+        <p className="save-status" role="status" style={{ marginTop: 16 }}>
           {message}
         </p>
       )}

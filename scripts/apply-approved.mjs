@@ -13,10 +13,14 @@ const envPath = path.join(rootDir, 'apps', 'web', '.env.local');
 const envContent = fs.readFileSync(envPath, 'utf8');
 let supabaseUrl = '';
 let supabaseKey = '';
+let anonKey = '';
 for (const line of envContent.split('\n')) {
   if (line.startsWith('NEXT_PUBLIC_SUPABASE_URL=')) supabaseUrl = line.split('=')[1].trim();
   if (line.startsWith('SUPABASE_SERVICE_ROLE_KEY=')) supabaseKey = line.split('=')[1].trim();
+  if (line.startsWith('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=')) anonKey = line.split('=')[1].trim();
+  if (!anonKey && line.startsWith('SUPABASE_ANON_KEY=')) anonKey = line.split('=')[1].trim();
 }
+supabaseKey = supabaseKey || anonKey;
 
 if (!supabaseUrl || !supabaseKey) {
   console.error('Missing Supabase credentials in apps/web/.env.local');
@@ -64,16 +68,16 @@ const require = createRequire(import.meta.url);
 const playwright = require(path.join(rootDir, 'packages', 'browser-agent', 'node_modules', 'playwright'));
 const { chromium } = playwright;
 
-// Smart answer resolution based on question label
-function resolveAnswerForLabel(labelText) {
+// Smart answer resolution based on question label and candidate profile
+function resolveAnswerForLabel(labelText, candidateInfo = {}) {
   const label = labelText.toLowerCase();
 
   // Social / Links
   if (/linkedin/i.test(label)) {
-    return "https://www.linkedin.com/in/tanishq-sol/";
+    return candidateInfo.linkedin || "https://www.linkedin.com";
   }
   if (/github/i.test(label)) {
-    return "https://github.com/tanishqrameshsolanki-collab";
+    return candidateInfo.github || "https://github.com";
   }
 
   // Custom Long-form Technical Answers
@@ -213,7 +217,7 @@ async function fillSmartForm(page, candidateInfo = {}) {
       return l ? l.innerText.trim() : el.placeholder || '';
     }).catch(() => '');
 
-    const answer = resolveAnswerForLabel(labelText);
+    const answer = resolveAnswerForLabel(labelText, candidateInfo);
     if (answer) {
       await ta.fill(answer);
       filledLog.push(`Answered Textarea: "${labelText.slice(0, 35)}..."`);
@@ -292,7 +296,7 @@ async function fillSmartForm(page, candidateInfo = {}) {
     }
 
     // Regular text input
-    const answer = resolveAnswerForLabel(labelText);
+    const answer = resolveAnswerForLabel(labelText, candidateInfo);
     if (answer) {
       await input.fill(answer);
       filledLog.push(`Input [${labelText.slice(0, 30)}...]: "${answer.slice(0, 25)}..."`);
