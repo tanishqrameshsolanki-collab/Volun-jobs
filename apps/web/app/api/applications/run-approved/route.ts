@@ -1,11 +1,11 @@
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
 import { existsSync } from 'node:fs';
 import { NextResponse } from 'next/server';
 import { getAuthenticatedCandidate } from '../../../../lib/opportunity-data';
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 
 export async function POST() {
   try {
@@ -40,12 +40,14 @@ export async function POST() {
     ];
     const scriptPath: string = scriptCandidates.find((p) => existsSync(p)) ?? scriptCandidates[0]!;
     const executionCwd = path.dirname(path.dirname(scriptPath));
-    
+
     let stdout = '';
     let stderr = '';
     try {
-      const result = await execAsync(
-        `node "${scriptPath}" --candidate-profile-id "${candidateProfileId}" --limit 2`,
+      // Use execFile without shell interpolation to guarantee command injection immunity
+      const result = await execFileAsync(
+        process.execPath,
+        [scriptPath, '--candidate-profile-id', String(candidateProfileId), '--limit', '2'],
         {
           cwd: executionCwd,
           timeout: 60000,

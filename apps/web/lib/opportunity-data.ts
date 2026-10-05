@@ -59,12 +59,12 @@ export async function getAuthenticatedCandidate() {
     const cookieStore = await cookies();
     const demoCookie = cookieStore.get('volun_demo_session');
     if (demoCookie?.value) {
-      const demo = JSON.parse(demoCookie.value);
-      // Check if a demo candidate_profile exists or create one if needed
+      const demo = JSON.parse(demoCookie.value) as { id?: string; email?: string; name?: string };
+      // Prevent cross-user data exposure: strictly scope to this user's specific owner ID
       const { data: demoCandidate } = await supabase
         .from('candidate_profiles')
         .select('id')
-        .limit(1)
+        .eq('owner_id', demo.id ?? '')
         .maybeSingle();
 
       return {
