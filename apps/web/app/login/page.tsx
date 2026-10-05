@@ -14,7 +14,7 @@ function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState(searchParams.get('error') || '');
   const [busy, setBusy] = useState(false);
 
   async function handleGoogleSignIn() {
@@ -35,7 +35,14 @@ function LoginForm() {
         throw oauthError;
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Google sign-in failed');
+      const msg = err instanceof Error ? err.message : 'Google sign-in failed';
+      if (msg.toLowerCase().includes('provider is not enabled')) {
+        setError(
+          'Google Provider is not enabled in your Supabase project yet. Follow the steps below or use Email & Password.',
+        );
+      } else {
+        setError(msg);
+      }
       setBusy(false);
     }
   }
