@@ -55,31 +55,12 @@ export async function updateSession(request: NextRequest) {
       pathname.startsWith('/onboarding') ||
       pathname.startsWith('/analytics');
 
-    const demoCookie = request.cookies.get('volun_demo_session');
-    let hasDemoSession = false;
-    if (demoCookie?.value) {
-      try {
-        JSON.parse(demoCookie.value);
-        hasDemoSession = true;
-      } catch {}
-    }
-
-    if (!user && !hasDemoSession) {
+    if (!user) {
       // Unauthenticated access to protected routes
       if (isProtected) {
         const url = request.nextUrl.clone();
         url.pathname = '/login';
         url.searchParams.set('redirectTo', pathname);
-        return NextResponse.redirect(url);
-      }
-      return supabaseResponse;
-    }
-
-    // If active demo session, prevent loop on login page
-    if (!user && hasDemoSession) {
-      if (pathname === '/login') {
-        const url = request.nextUrl.clone();
-        url.pathname = '/command-center';
         return NextResponse.redirect(url);
       }
       return supabaseResponse;

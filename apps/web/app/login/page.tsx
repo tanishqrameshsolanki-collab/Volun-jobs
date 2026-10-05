@@ -10,13 +10,35 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get('redirectTo') || '/command-center';
 
-  const [authMode, setAuthMode] = useState<'password' | 'magic'>('password');
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+
+  async function handleGoogleSignIn() {
+    setBusy(true);
+    setError('');
+    setMessage('');
+    try {
+      const supabase = createClient();
+      const callbackUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`;
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: callbackUrl,
+        },
+      });
+
+      if (oauthError) {
+        throw oauthError;
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Google sign-in failed');
+      setBusy(false);
+    }
+  }
 
   async function handlePasswordAuth(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -42,45 +64,17 @@ function LoginForm() {
         },
       });
 
+      setBusy(false);
       if (signUpError) {
-        // If Supabase free tier rate limits email confirmations, establish direct candidate session seamlessly
-        if (signUpError.message.toLowerCase().includes('rate limit')) {
-          setMessage('Supabase email rate limit detected. Establishing direct candidate session…');
-          try {
-            const res = await fetch('/api/auth/quick-login', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email: candidateEmail }),
-            });
-            const qData = await res.json();
-            if (qData.success) {
-              window.location.href = '/onboarding';
-              return;
-            }
-          } catch {}
-        }
         setError(signUpError.message);
-        setBusy(false);
       } else if (data.session) {
         setMessage('Account created! Entering onboarding…');
         router.push('/onboarding');
         router.refresh();
       } else {
-        // Registration initiated; also set direct session so user is never blocked by confirmation email latency
-        setMessage('Account created! Entering onboarding…');
-        try {
-          const res = await fetch('/api/auth/quick-login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: candidateEmail }),
-          });
-          const qData = await res.json();
-          if (qData.success) {
-            window.location.href = '/onboarding';
-            return;
-          }
-        } catch {}
-        router.push('/onboarding');
+        setMessage(
+          'Confirmation link sent. If email confirmation is enabled in Supabase, check your inbox to verify your account.',
+        );
       }
     } else {
       const { data, error: signInError } =
@@ -89,24 +83,9 @@ function LoginForm() {
           password,
         });
 
+      setBusy(false);
       if (signInError) {
-        if (signInError.message.toLowerCase().includes('rate limit')) {
-          setMessage('Email rate limit detected. Signing in via direct candidate session…');
-          try {
-            const res = await fetch('/api/auth/quick-login', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email: candidateEmail }),
-            });
-            const qData = await res.json();
-            if (qData.success) {
-              window.location.href = redirectTo;
-              return;
-            }
-          } catch {}
-        }
-        setError(`${signInError.message}. You can also use Instant Sign In below to enter directly.`);
-        setBusy(false);
+        setError(signInError.message);
       } else if (data.session) {
         setMessage('Signed in! Redirecting…');
         router.push(redirectTo);
@@ -115,256 +94,173 @@ function LoginForm() {
     }
   }
 
-  async function handleMagicLink(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setBusy(true);
-    setMessage('');
-    setError('');
-
-    const supabase = createClient();
-    const candidateEmail = email.trim();
-
-    const { error: otpError } = await supabase.auth.signInWithOtp({
-      email: candidateEmail,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo)}`,
-      },
-    });
-
-    if (otpError) {
-      if (otpError.message.toLowerCase().includes('rate limit')) {
-        setMessage('Supabase email service rate-limited. Establishing direct candidate session…');
-        try {
-          const res = await fetch('/api/auth/quick-login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: candidateEmail }),
-          });
-          const qData = await res.json();
-          if (qData.success) {
-            window.location.href = redirectTo;
-            return;
-          }
-        } catch {}
-      }
-      setError(otpError.message);
-      setBusy(false);
-    } else {
-      setBusy(false);
-      setMessage('Check your email for a sign-in link, or use Instant Sign In below.');
-    }
-  }
-
-  async function handleQuickDevLogin() {
-    setBusy(true);
-    const targetEmail = email.trim() || 'candidate@volunjobs.com';
-    setMessage(`Establishing session for ${targetEmail}…`);
-    setError('');
-    try {
-      const res = await fetch('/api/auth/quick-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: targetEmail,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.success)
-        throw new Error(data.error ?? 'Sign in failed');
-      setMessage('Signed in! Redirecting to Command Center…');
-      window.location.href = redirectTo;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Sign in failed');
-      setBusy(false);
-    }
-  }
-
   return (
-    <main className="profile-page">
-      <Link className="back" href="/">
+    <main className="profile-page" style={{ maxWidth: '440px', margin: '60px auto', padding: '0 20px' }}>
+      <Link className="back" href="/" style={{ display: 'inline-block', marginBottom: '24px' }}>
         ← Dashboard
       </Link>
       <p className="eyebrow accent">Multi-User Platform</p>
-      <h1>Sign in to Volun jobs</h1>
-      <p className="lead">
+      <h1 style={{ fontSize: '28px', margin: '8px 0 12px 0' }}>Sign in to Volun jobs</h1>
+      <p className="lead" style={{ fontSize: '14px', lineHeight: 1.5, marginBottom: '28px' }}>
         Sign in to your private workspace. Your candidate profile, job scores,
         application queue, and automation runs are isolated to your account.
       </p>
 
-      {/* Tabs */}
+      {/* Google OAuth 1-Click Sign In */}
+      <button
+        type="button"
+        disabled={busy}
+        onClick={handleGoogleSignIn}
+        style={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '12px',
+          padding: '12px 16px',
+          borderRadius: '8px',
+          border: '1px solid var(--line)',
+          background: 'var(--surface)',
+          color: 'var(--ink)',
+          fontSize: '14px',
+          fontWeight: 600,
+          cursor: 'pointer',
+          transition: 'background 0.15s ease, border-color 0.15s ease',
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--ink)')}
+        onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--line)')}
+      >
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M17.64 9.20455C17.64 8.56636 17.5827 7.95273 17.4764 7.36364H9V10.845H13.8436C13.635 11.97 13.0009 12.9232 12.0477 13.5614V15.8195H14.9564C16.6582 14.2527 17.64 11.9455 17.64 9.20455Z"
+            fill="#4285F4"
+          />
+          <path
+            d="M9 18C11.43 18 13.4673 17.1941 14.9564 15.8195L12.0477 13.5614C11.2418 14.1014 10.2109 14.4205 9 14.4205C6.65591 14.4205 4.67182 12.8373 3.96409 10.71H0.957275V13.0418C2.43818 15.9832 5.48182 18 9 18Z"
+            fill="#34A853"
+          />
+          <path
+            d="M3.96409 10.71C3.78409 10.17 3.68182 9.59318 3.68182 9C3.68182 8.40682 3.78409 7.83 3.96409 7.29V4.95818H0.957275C0.347727 6.17318 0 7.54773 0 9C0 10.4523 0.347727 11.8268 0.957275 13.0418L3.96409 10.71Z"
+            fill="#FBBC05"
+          />
+          <path
+            d="M9 3.57955C10.3214 3.57955 11.5077 4.03364 12.4405 4.92545L15.0218 2.34409C13.4632 0.891818 11.4259 0 9 0C5.48182 0 2.43818 2.01682 0.957275 4.95818L3.96409 7.29C4.67182 5.16273 6.65591 3.57955 9 3.57955Z"
+            fill="#EA4335"
+          />
+        </svg>
+        Continue with Google
+      </button>
+
+      {/* Divider */}
       <div
         style={{
           display: 'flex',
-          gap: '8px',
-          marginBottom: '20px',
-          borderBottom: '1px solid var(--line)',
-          paddingBottom: '10px',
+          alignItems: 'center',
+          gap: '12px',
+          margin: '24px 0',
         }}
       >
-        <button
-          type="button"
-          onClick={() => {
-            setAuthMode('password');
-            setError('');
-            setMessage('');
-          }}
-          style={{
-            padding: '8px 16px',
-            borderRadius: '6px',
-            border: 'none',
-            background:
-              authMode === 'password' ? 'var(--accent)' : 'transparent',
-            color: authMode === 'password' ? '#fff' : 'var(--muted)',
-            fontWeight: 600,
-            cursor: 'pointer',
-          }}
-        >
+        <div style={{ flex: 1, height: '1px', background: 'var(--line)' }} />
+        <span style={{ fontSize: '12px', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          or with email
+        </span>
+        <div style={{ flex: 1, height: '1px', background: 'var(--line)' }} />
+      </div>
+
+      {/* Password Authentication Form */}
+      <form className="editor" onSubmit={handlePasswordAuth} style={{ display: 'grid', gap: '16px' }}>
+        <label>
+          Email Address
+          <input
+            autoComplete="email"
+            required
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="candidate@example.com"
+          />
+        </label>
+        <label>
           Password
+          <input
+            autoComplete={isSignUp ? 'new-password' : 'current-password'}
+            required
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+          />
+        </label>
+
+        <button className="primary-button" disabled={busy} type="submit" style={{ width: '100%', padding: '12px' }}>
+          {busy
+            ? 'Please wait…'
+            : isSignUp
+              ? 'Create account & begin onboarding'
+              : 'Sign in to workspace'}{' '}
+          <span>→</span>
         </button>
-        <button
-          type="button"
-          onClick={() => {
-            setAuthMode('magic');
-            setError('');
-            setMessage('');
-          }}
-          style={{
-            padding: '8px 16px',
-            borderRadius: '6px',
-            border: 'none',
-            background: authMode === 'magic' ? 'var(--accent)' : 'transparent',
-            color: authMode === 'magic' ? '#fff' : 'var(--muted)',
-            fontWeight: 600,
-            cursor: 'pointer',
-          }}
-        >
-          Magic Link
-        </button>
-      </div>
 
-      {authMode === 'password' ? (
-        <form className="editor" onSubmit={handlePasswordAuth}>
-          <label>
-            Email
-            <input
-              autoComplete="email"
-              required
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="candidate@example.com"
-            />
-          </label>
-          <label>
-            Password
-            <input
-              autoComplete={isSignUp ? 'new-password' : 'current-password'}
-              required
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-            />
-          </label>
-
-          <button className="primary-button" disabled={busy} type="submit">
-            {busy
-              ? 'Please wait…'
-              : isSignUp
-                ? 'Create account & begin onboarding'
-                : 'Sign in to workspace'}{' '}
-            <span>→</span>
-          </button>
-
-          <div style={{ marginTop: '12px', fontSize: '13px' }}>
-            {isSignUp ? (
-              <span>
-                Already have an account?{' '}
-                <button
-                  type="button"
-                  onClick={() => setIsSignUp(false)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--accent)',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    padding: 0,
-                  }}
-                >
-                  Sign in
-                </button>
-              </span>
-            ) : (
-              <span>
-                Don&apos;t have an account yet?{' '}
-                <button
-                  type="button"
-                  onClick={() => setIsSignUp(true)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'var(--accent)',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    padding: 0,
-                  }}
-                >
-                  Create one now
-                </button>
-              </span>
-            )}
-          </div>
-        </form>
-      ) : (
-        <form className="editor" onSubmit={handleMagicLink}>
-          <label>
-            Email
-            <input
-              autoComplete="email"
-              required
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="candidate@example.com"
-            />
-          </label>
-          <button className="primary-button" disabled={busy} type="submit">
-            {busy ? 'Sending…' : 'Email me a secure sign-in link'}{' '}
-            <span>→</span>
-          </button>
-        </form>
-      )}
-
-      {/* Developer & Candidate 1-Click Access */}
-      <div
-        style={{
-          marginTop: 28,
-          paddingTop: 20,
-          borderTop: '1px solid var(--line)',
-        }}
-      >
-        <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 12 }}>
-          Instant Workspace Access (Bypasses email delivery delays &amp; SMTP limits):
-        </p>
-        <button
-          className="secondary-button"
-          disabled={busy}
-          onClick={handleQuickDevLogin}
-          type="button"
-          style={{ width: '100%', justifyContent: 'center' }}
-        >
-          {email.trim() ? `Instant Sign In (${email.trim()})` : 'Instant Demo Sign In'} <span>→</span>
-        </button>
-      </div>
+        <div style={{ marginTop: '8px', fontSize: '13px', textAlign: 'center' }}>
+          {isSignUp ? (
+            <span>
+              Already have an account?{' '}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSignUp(false);
+                  setError('');
+                  setMessage('');
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--accent)',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  padding: 0,
+                }}
+              >
+                Sign in
+              </button>
+            </span>
+          ) : (
+            <span>
+              Don&apos;t have an account yet?{' '}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSignUp(true);
+                  setError('');
+                  setMessage('');
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--accent)',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  padding: 0,
+                }}
+              >
+                Create one now
+              </button>
+            </span>
+          )}
+        </div>
+      </form>
 
       {error && (
         <p
           style={{
-            marginTop: 16,
+            marginTop: 20,
             color: '#dc2626',
             fontSize: '14px',
             fontWeight: 500,
+            background: '#fef2f2',
+            border: '1px solid #fecaca',
+            padding: '10px 14px',
+            borderRadius: '6px',
           }}
           role="alert"
         >
@@ -372,7 +268,7 @@ function LoginForm() {
         </p>
       )}
       {message && (
-        <p className="save-status" role="status" style={{ marginTop: 16 }}>
+        <p className="save-status" role="status" style={{ marginTop: 20 }}>
           {message}
         </p>
       )}
