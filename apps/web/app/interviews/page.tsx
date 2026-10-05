@@ -24,22 +24,25 @@ export default async function InterviewsPage() {
     }));
 
   return (
-    <main className="profile-page" style={{ maxWidth: '1180px', margin: '0 auto', padding: '38px 32px 70px' }}>
-      <div className="profile-head" style={{ marginBottom: '24px' }}>
-        <div>
-          <Link className="back" href="/">
-            ← Dashboard
-          </Link>
-          <p className="eyebrow accent">Interview Readiness</p>
-          <h1>Interviews &amp; Reminders</h1>
-          <p className="lead">
-            Track interview dates, technical rounds, preparation notes, and verified candidate facts to ensure 100% truthful, consistent interview execution.
-          </p>
-        </div>
-        <div style={{ alignSelf: 'flex-start' }}>
-          <Link href="/applications" className="secondary-button" style={{ display: 'inline-block' }}>
-            Application Tracker <span>→</span>
-          </Link>
+    <main className="profile-page" style={{ maxWidth: '1120px', margin: '0 auto', padding: '36px 32px 72px' }}>
+      <div className="desk-briefing" style={{ paddingBottom: '24px', marginBottom: '28px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+          <div>
+            <Link className="back" href="/" style={{ marginBottom: '14px' }}>
+              ← Overview
+            </Link>
+            <h1 style={{ fontSize: '26px', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--ink)', margin: '0 0 6px' }}>
+              Interviews &amp; reminders
+            </h1>
+            <p className="desk-lead" style={{ margin: 0 }}>
+              Track scheduled rounds, technical preparation notes, and verified candidate facts.
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <Link href="/applications" className="secondary-button">
+              Applications <span>→</span>
+            </Link>
+          </div>
         </div>
       </div>
 

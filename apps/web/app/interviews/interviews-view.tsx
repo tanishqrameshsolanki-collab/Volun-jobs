@@ -63,7 +63,6 @@ export function InterviewsView({ initialInterviews, profile }: InterviewsViewPro
         }),
       });
 
-      // Optimistically add to state
       const newItem: InterviewItem = {
         applicationId: 'manual-' + Date.now(),
         jobId: 'manual-' + Date.now(),
@@ -81,126 +80,140 @@ export function InterviewsView({ initialInterviews, profile }: InterviewsViewPro
       setToast(`Interview for ${company} scheduled.`);
       setTimeout(() => setToast(null), 3500);
 
-      // Reset form
       setCompany('');
       setRole('');
       setDate('');
       setNotes('');
       setContact('');
     } catch {
-      // Local fallback
       setShowAddModal(false);
     } finally {
       setSaving(false);
     }
   }
 
+  const upcomingCount = interviews.filter((i) => getDaysUntil(i.date) !== 'Completed').length;
+
   return (
     <div className="interviews-container">
       {toast && (
-        <div className="app-toast" role="status">
-          ✓ {toast}
+        <div className="app-toast" role="status" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          {toast}
         </div>
       )}
 
-      {/* Top action header */}
-      <div className="interviews-header-actions">
+      {/* Top action row */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', paddingBottom: '16px', borderBottom: '1px solid var(--line)', marginBottom: '24px' }}>
         <div>
-          <h2>Upcoming Rounds ({interviews.filter((i) => getDaysUntil(i.date) !== 'Completed').length})</h2>
-          <p className="muted">Keep your interview rounds organized with grounded candidate facts.</p>
+          <h2 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--ink)', margin: 0 }}>
+            Scheduled rounds ({upcomingCount} upcoming)
+          </h2>
         </div>
         <button
           type="button"
           onClick={() => setShowAddModal(true)}
           className="primary-button"
         >
-          + Log Interview Round
+          + Log interview round
         </button>
       </div>
 
       <div className="interviews-layout">
-        {/* Left Column: Scheduled Interviews */}
+        {/* Left Column: Scheduled Interviews List */}
         <div className="interviews-main">
           {interviews.length > 0 ? (
-            <div className="interviews-list">
+            <div className="agenda-list">
               {interviews.map((item, idx) => {
                 const days = getDaysUntil(item.date);
                 const isUpcoming = days !== 'Completed';
                 return (
-                  <article key={idx} className={`interview-card ${isUpcoming ? 'upcoming' : 'past'}`}>
-                    <div className="interview-top">
-                      <div>
-                        <span className="interview-company">{item.company}</span>
-                        <h3 className="interview-title">{item.title}</h3>
-                        <span className="interview-round">{item.round}</span>
-                      </div>
-                      <div className="interview-badge-box">
-                        <span className={`time-badge ${isUpcoming ? 'badge-soon' : 'badge-done'}`}>
-                          {days}
-                        </span>
-                        <span className="interview-date">
-                          {new Date(item.date).toLocaleDateString(undefined, {
-                            weekday: 'short',
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </span>
-                      </div>
+                  <article key={idx} className="agenda-item">
+                    <div className="agenda-time-col">
+                      <span className={`agenda-relative-tag ${isUpcoming ? 'upcoming' : 'past'}`}>
+                        {days}
+                      </span>
+                      <time className="agenda-full-date">
+                        {new Date(item.date).toLocaleDateString(undefined, {
+                          weekday: 'short',
+                          month: 'short',
+                          day: 'numeric',
+                        })}
+                      </time>
+                      <span className="agenda-clock-time">
+                        {new Date(item.date).toLocaleTimeString(undefined, {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
                     </div>
 
-                    {(item.contact || item.notes) && (
-                      <div className="interview-notes-box">
-                        {item.contact && (
-                          <p><strong>Contact / Interviewer:</strong> {item.contact}</p>
-                        )}
-                        {item.notes && (
-                          <p><strong>Prep Notes:</strong> {item.notes}</p>
-                        )}
+                    <div className="agenda-content-col">
+                      <div className="agenda-header-line">
+                        <span className="agenda-company">{item.company}</span>
+                        <span className="agenda-round-label">{item.round}</span>
                       </div>
-                    )}
+                      <h3 className="agenda-title">{item.title}</h3>
 
-                    <div className="interview-footer">
-                      <span className="muted">Variant used: {item.resumeVariant.replace('resume_', '')}</span>
-                      <Link href="/applications" className="secondary-button" style={{ padding: '6px 10px', fontSize: '11px' }}>
-                        View in Application Tracker →
-                      </Link>
+                      {(item.contact || item.notes) && (
+                        <div className="agenda-details-box">
+                          {item.contact && (
+                            <p className="agenda-contact-line">
+                              <strong>Contact:</strong> {item.contact}
+                            </p>
+                          )}
+                          {item.notes && (
+                            <p className="agenda-notes-line">
+                              {item.notes}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="agenda-footer-line">
+                        <span className="agenda-variant-note">
+                          Resume variant: {item.resumeVariant.replace('resume_', '')}
+                        </span>
+                        <Link href="/applications" className="agenda-app-link">
+                          View in applications →
+                        </Link>
+                      </div>
                     </div>
                   </article>
                 );
               })}
             </div>
           ) : (
-            <div className="empty-state">
-              <span className="empty-icon" style={{ background: 'var(--line-subtle)', borderRadius: '8px', width: '38px', height: '38px', margin: '0 auto 12px', display: 'grid', placeItems: 'center' }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-              </span>
-              <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ink)' }}>No interviews currently scheduled</h3>
-              <p style={{ color: 'var(--muted)', fontSize: '13px', margin: '4px auto 16px', maxWidth: '440px' }}>
-                When an application reaches the interview round, or when a recruiter contacts you, log it here to track preparation notes and grounded facts.
+            <div className="empty-state" style={{ padding: '60px 20px', textAlign: 'center' }}>
+              <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ink)', margin: '0 0 6px' }}>
+                No interviews currently scheduled.
+              </p>
+              <p style={{ color: 'var(--muted)', fontSize: '13px', margin: '0 0 20px' }}>
+                When a recruiter or hiring team reaches out, log the round here to track technical preparation notes and factual talking points.
               </p>
               <button
                 type="button"
                 onClick={() => setShowAddModal(true)}
-                className="primary-button"
+                className="secondary-button"
               >
-                Log an Interview Round
+                Log an interview round <span>→</span>
               </button>
             </div>
           )}
         </div>
 
-        {/* Right Column: Grounded Fact Sheet for Interview Prep */}
-        <aside className="interview-sidebar">
-          <div className="prep-sheet-card">
-            <h3>Verified Candidate Facts</h3>
-            <p className="muted" style={{ fontSize: '12px', margin: '4px 0 16px' }}>
-              Reference verified facts submitted in your resume to ensure consistency during rounds.
+        {/* Right Column: Verified Candidate Facts for Interview Prep */}
+        <aside className="interviews-sidebar">
+          <div className="prep-document">
+            <h3 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--ink)', margin: '0 0 4px' }}>
+              Verified candidate facts
+            </h3>
+            <p style={{ fontSize: '12px', color: 'var(--muted)', margin: '0 0 16px', lineHeight: 1.4 }}>
+              Reference verified facts submitted in your application to ensure consistency during technical and behavioral rounds.
             </p>
 
             <div className="fact-item">
-              <span className="fact-lbl">Candidate Name</span>
+              <span className="fact-lbl">Candidate</span>
               <strong className="fact-val">{profile.personalInformation.fullName}</strong>
             </div>
 
@@ -212,8 +225,8 @@ export function InterviewsView({ initialInterviews, profile }: InterviewsViewPro
             </div>
 
             <div className="fact-item">
-              <span className="fact-lbl">Work Authorization</span>
-              <span className="fact-val">{profile.constraints.workAuthorization || 'Authorized'}</span>
+              <span className="fact-lbl">Work authorization</span>
+              <span className="fact-val">{profile.constraints.workAuthorization || 'Authorized to work'}</span>
             </div>
 
             <div className="fact-item">
@@ -221,21 +234,21 @@ export function InterviewsView({ initialInterviews, profile }: InterviewsViewPro
               <span className="fact-val">{profile.constraints.sponsorship || 'None required'}</span>
             </div>
 
-            <div className="fact-item" style={{ marginTop: '12px' }}>
-              <span className="fact-lbl">Key Technical Skills</span>
-              <div className="skill-list" style={{ marginTop: '6px' }}>
-                {profile.skills.languages?.slice(0, 4).map((s) => (
+            <div className="fact-item" style={{ borderBottom: 'none' }}>
+              <span className="fact-lbl">Verified skills</span>
+              <div className="skill-list" style={{ marginTop: '8px' }}>
+                {profile.skills.languages?.slice(0, 5).map((s) => (
                   <span key={s}>{s}</span>
                 ))}
-                {profile.skills.backend?.slice(0, 3).map((s) => (
+                {profile.skills.backend?.slice(0, 4).map((s) => (
                   <span key={s}>{s}</span>
                 ))}
               </div>
             </div>
 
-            <div style={{ marginTop: '18px', paddingTop: '12px', borderTop: '1px solid var(--line)' }}>
+            <div style={{ marginTop: '16px', paddingTop: '14px', borderTop: '1px solid var(--line)' }}>
               <Link href="/profile" className="secondary-button" style={{ fontSize: '12px', display: 'block', textAlign: 'center' }}>
-                Edit Full Candidate Facts →
+                Edit candidate facts →
               </Link>
             </div>
           </div>
@@ -245,11 +258,11 @@ export function InterviewsView({ initialInterviews, profile }: InterviewsViewPro
       {/* Log Interview Modal */}
       {showAddModal && (
         <div className="modal-backdrop" onClick={() => setShowAddModal(false)}>
-          <div className="modal-panel" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+          <div className="modal-panel" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" style={{ maxWidth: '520px' }}>
             <div className="modal-header">
               <div>
                 <p className="modal-eyebrow">Interview Tracker</p>
-                <h2>Log Interview Round</h2>
+                <h2 style={{ fontSize: '18px', fontWeight: 600, margin: '2px 0 0' }}>Log interview round</h2>
               </div>
               <button
                 type="button"
@@ -264,17 +277,17 @@ export function InterviewsView({ initialInterviews, profile }: InterviewsViewPro
             <form onSubmit={handleAddInterview} className="editor" style={{ marginTop: '16px' }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <label>
-                  Company Name *
+                  Company name *
                   <input
                     type="text"
                     required
                     value={company}
                     onChange={(e) => setCompany(e.target.value)}
-                    placeholder="Anthropic, Google, NVIDIA"
+                    placeholder="e.g. Anthropic, Databricks"
                   />
                 </label>
                 <label>
-                  Job Title
+                  Job title
                   <input
                     type="text"
                     value={role}
@@ -286,7 +299,7 @@ export function InterviewsView({ initialInterviews, profile }: InterviewsViewPro
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <label>
-                  Interview Round
+                  Round type
                   <select value={round} onChange={(e) => setRound(e.target.value)}>
                     <option value="Recruiter Screen">Recruiter Screen</option>
                     <option value="Technical Interview">Technical Interview</option>
@@ -297,7 +310,7 @@ export function InterviewsView({ initialInterviews, profile }: InterviewsViewPro
                   </select>
                 </label>
                 <label>
-                  Date &amp; Time *
+                  Date &amp; time *
                   <input
                     type="datetime-local"
                     required
@@ -308,7 +321,7 @@ export function InterviewsView({ initialInterviews, profile }: InterviewsViewPro
               </div>
 
               <label>
-                Interviewer / Recruiter Contact
+                Interviewer / recruiter contact
                 <input
                   type="text"
                   value={contact}
@@ -318,16 +331,16 @@ export function InterviewsView({ initialInterviews, profile }: InterviewsViewPro
               </label>
 
               <label>
-                Preparation Notes &amp; Topics to Cover
+                Preparation notes
                 <textarea
                   rows={3}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Review distributed consensus, graph traversal, project architecture..."
+                  placeholder="Topics to review: concurrency, project architecture, questions for interviewer..."
                 />
               </label>
 
-              <div className="modal-footer" style={{ marginTop: '20px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
@@ -340,7 +353,7 @@ export function InterviewsView({ initialInterviews, profile }: InterviewsViewPro
                   disabled={saving}
                   className="primary-button"
                 >
-                  {saving ? 'Saving…' : 'Save Interview'} <span>→</span>
+                  {saving ? 'Saving…' : 'Save round'} <span>→</span>
                 </button>
               </div>
             </form>

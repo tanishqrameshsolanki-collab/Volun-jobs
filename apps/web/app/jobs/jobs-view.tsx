@@ -46,61 +46,101 @@ export function JobsView({ initialOpportunities }: JobsViewProps) {
 
   return (
     <div className="jobs-container">
-      {/* Controls Bar */}
-      <div className="jobs-controls">
-        <div className="search-box">
+      {/* Restrained Controls Bar */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', paddingBottom: '20px', borderBottom: '1px solid var(--line)' }}>
+        <div style={{ position: 'relative', width: '100%' }}>
           <input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by role, company, technology, or location…"
+            placeholder="Search by role, company, or skills…"
             aria-label="Search opportunities"
+            style={{
+              width: '100%',
+              padding: '9px 12px',
+              fontSize: '13px',
+              border: '1px solid var(--line)',
+              borderRadius: 'var(--radius-sm)',
+              background: 'var(--surface)',
+              color: 'var(--ink)',
+            }}
           />
         </div>
 
-        <div className="filter-group">
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
           <button
             type="button"
-            className={`pill-btn ${filterHighMatch ? 'active' : ''}`}
+            style={{
+              padding: '6px 12px',
+              fontSize: '12px',
+              fontWeight: filterHighMatch ? 600 : 450,
+              background: filterHighMatch ? 'var(--line-subtle)' : 'var(--surface)',
+              border: '1px solid var(--line)',
+              borderRadius: 'var(--radius-sm)',
+              color: 'var(--ink)',
+              cursor: 'pointer',
+            }}
             onClick={() => setFilterHighMatch(!filterHighMatch)}
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '6px' }}><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
-            High Match (80%+)
+            Match ≥ 80%
           </button>
           <button
             type="button"
-            className={`pill-btn ${filterRemote ? 'active' : ''}`}
+            style={{
+              padding: '6px 12px',
+              fontSize: '12px',
+              fontWeight: filterRemote ? 600 : 450,
+              background: filterRemote ? 'var(--line-subtle)' : 'var(--surface)',
+              border: '1px solid var(--line)',
+              borderRadius: 'var(--radius-sm)',
+              color: 'var(--ink)',
+              cursor: 'pointer',
+            }}
             onClick={() => setFilterRemote(!filterRemote)}
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '6px' }}><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-            Remote Only
+            Remote only
           </button>
           <select
             value={eligibilityFilter}
             onChange={(e) => setEligibilityFilter(e.target.value as typeof eligibilityFilter)}
-            className="select-filter"
+            style={{
+              padding: '6px 10px',
+              fontSize: '12px',
+              border: '1px solid var(--line)',
+              borderRadius: 'var(--radius-sm)',
+              background: 'var(--surface)',
+              color: 'var(--ink)',
+            }}
             aria-label="Filter by eligibility"
           >
-            <option value="ALL">All Eligibility</option>
+            <option value="ALL">All eligibility</option>
             <option value="ELIGIBLE">Eligible</option>
-            <option value="LIKELY_ELIGIBLE">Likely Eligible</option>
-            <option value="UNKNOWN">Needs Review</option>
+            <option value="LIKELY_ELIGIBLE">Likely eligible</option>
+            <option value="UNKNOWN">Needs review</option>
           </select>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-            className="select-filter"
+            style={{
+              padding: '6px 10px',
+              fontSize: '12px',
+              border: '1px solid var(--line)',
+              borderRadius: 'var(--radius-sm)',
+              background: 'var(--surface)',
+              color: 'var(--ink)',
+              marginLeft: 'auto',
+            }}
             aria-label="Sort opportunities"
           >
-            <option value="match">Sort by Match Score</option>
-            <option value="recent">Sort by Date Discovered</option>
-            <option value="company">Sort by Company</option>
+            <option value="match">Sort by match</option>
+            <option value="recent">Sort by date</option>
+            <option value="company">Sort by company</option>
           </select>
         </div>
       </div>
 
-      <div className="jobs-count-strip">
-        <span>Showing {filteredOpportunities.length} opportunities</span>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0', fontSize: '12px', color: 'var(--muted)' }}>
+        <span>{filteredOpportunities.length} opportunities discovered</span>
         {(search || filterRemote || filterHighMatch || eligibilityFilter !== 'ALL') && (
           <button
             type="button"
@@ -110,92 +150,109 @@ export function JobsView({ initialOpportunities }: JobsViewProps) {
               setFilterHighMatch(false);
               setEligibilityFilter('ALL');
             }}
-            className="clear-filters-btn"
+            style={{ background: 'none', border: 'none', color: 'var(--ink)', textDecoration: 'underline', cursor: 'pointer', padding: 0 }}
           >
-            Reset filters
+            Clear filters
           </button>
         )}
       </div>
 
-      {/* Opportunities Grid */}
+      {/* Editorial Publication Directory Listing */}
       {filteredOpportunities.length > 0 ? (
-        <div className="jobs-grid">
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
           {filteredOpportunities.map((opp) => (
-            <article key={opp.id} className="job-card">
-              <div className="job-card-header">
+            <article
+              key={opp.id}
+              style={{
+                padding: '24px 0',
+                borderBottom: '1px solid var(--line)',
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px', marginBottom: '6px' }}>
                 <div>
-                  <span className="job-company">{opp.company}</span>
-                  <h3 className="job-title">{opp.title}</h3>
-                  <p className="job-location">{opp.location || 'Location not specified'}</p>
+                  <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    {opp.company}
+                  </span>
+                  <h2 style={{ fontSize: '17px', fontWeight: 600, color: 'var(--ink)', margin: '3px 0 4px', letterSpacing: '-0.015em' }}>
+                    {opp.title}
+                  </h2>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '12px', color: 'var(--muted)' }}>
+                    <span>{opp.location || 'Location not stated'}</span>
+                    <span>·</span>
+                    <span>Source: {opp.source}</span>
+                    <span>·</span>
+                    <span>{opp.recommendedResume.replace('resume_', '').replace('_', ' ')} resume</span>
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  className="score-badge-btn"
-                  onClick={() => setSelectedScoreOpp(opp)}
-                  title="Click to see why you match"
-                >
-                  <span className="score-val">{opp.matchScore}%</span>
-                  <span className="score-lbl">MATCH</span>
-                </button>
-              </div>
 
-              <div className="job-card-meta">
-                <span className={`eligibility-tag ${opp.eligibility.toLowerCase()}`}>
-                  {opp.eligibility.replaceAll('_', ' ')}
-                </span>
-                <span className="source-tag">{opp.source}</span>
-                <span className="variant-tag">{opp.recommendedResume.replace('resume_', '').replace('_', ' ')} resume</span>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px', flexShrink: 0 }}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedScoreOpp(opp)}
+                    title="Inspect match calculation"
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      padding: 0,
+                      cursor: 'pointer',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      color: 'var(--ink)',
+                      textDecoration: 'underline',
+                      textUnderlineOffset: '3px',
+                    }}
+                  >
+                    {opp.matchScore}% match
+                  </button>
+                  <span style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'capitalize' }}>
+                    {opp.eligibility.toLowerCase().replace('_', ' ')}
+                  </span>
+                </div>
               </div>
 
               {opp.whyItMatches.length > 0 && (
-                <div className="job-strengths">
-                  <span className="strength-label">Strong match:</span>
-                  <div className="tags-row">
-                    {opp.whyItMatches.slice(0, 3).map((strength) => (
-                      <span key={strength} className="strength-pill">
-                        <span style={{ color: 'var(--match-emerald)', marginRight: 5, fontSize: '10px' }}>●</span>
-                        {strength}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+                <p style={{ fontSize: '13px', color: 'var(--ink-secondary)', margin: '10px 0 4px', lineHeight: 1.5 }}>
+                  <strong style={{ fontWeight: 600 }}>Fit:</strong> {opp.whyItMatches.join(' · ')}
+                </p>
               )}
 
               {opp.missingRequirements.length > 0 && (
-                <div className="job-gap">
-                  <span className="gap-label">Potential gap:</span> {opp.missingRequirements.join(' · ')}
-                </div>
+                <p style={{ fontSize: '12px', color: 'var(--muted)', margin: '4px 0 0', lineHeight: 1.4 }}>
+                  <span style={{ fontWeight: 500 }}>Potential gap:</span> {opp.missingRequirements.join(', ')}
+                </p>
               )}
 
-              <div className="job-card-footer">
-                <button
-                  type="button"
-                  onClick={() => setSelectedScoreOpp(opp)}
-                  className="btn-text-match"
+              <div style={{ display: 'flex', gap: '16px', alignItems: 'center', marginTop: '14px' }}>
+                <Link
+                  href={`/opportunities/${opp.id}`}
+                  style={{
+                    fontSize: '13px',
+                    fontWeight: 500,
+                    color: 'var(--ink)',
+                    textDecoration: 'underline',
+                    textUnderlineOffset: '3px',
+                  }}
                 >
-                  Score Breakdown →
-                </button>
-                <div className="action-links">
-                  <Link href={`/opportunities/${opp.id}`} className="secondary-button" style={{ padding: '7px 12px', fontSize: '12px' }}>
-                    Details
-                  </Link>
-                  <Link href="/review" className="primary-button" style={{ padding: '7px 14px', fontSize: '12px' }}>
-                    Review in Queue →
-                  </Link>
-                </div>
+                  Review application →
+                </Link>
+                <a
+                  href={opp.applicationUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    fontSize: '13px',
+                    color: 'var(--muted)',
+                  }}
+                >
+                  Official ATS posting ↗
+                </a>
               </div>
             </article>
           ))}
         </div>
       ) : (
-        <div className="empty-state">
-          <span className="empty-icon" style={{ background: 'var(--line-subtle)', borderRadius: '8px', width: '38px', height: '38px', margin: '0 auto 12px', display: 'grid', placeItems: 'center' }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          </span>
-          <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ink)' }}>No opportunities match your current filters</h3>
-          <p style={{ color: 'var(--muted)', fontSize: '13px', margin: '4px auto 16px', maxWidth: '440px' }}>
-            Try adjusting your search terms, clearing filters, or running a fresh scan from the Command Center.
-          </p>
+        <div style={{ padding: '48px 0', textAlign: 'center', color: 'var(--muted)' }}>
+          <p style={{ fontSize: '14px', marginBottom: '12px' }}>No opportunities match your current filters.</p>
           <button
             type="button"
             className="secondary-button"
@@ -211,39 +268,44 @@ export function JobsView({ initialOpportunities }: JobsViewProps) {
         </div>
       )}
 
-      {/* Match Explanation Modal / Drawer */}
+      {/* Match Explanation Document Drawer / Modal */}
       {selectedScoreOpp && (
         <div className="modal-backdrop" onClick={() => setSelectedScoreOpp(null)}>
-          <div className="modal-panel" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
-            <div className="modal-header">
+          <div
+            className="modal-panel"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            style={{ maxWidth: '560px', borderRadius: 'var(--radius-lg)', boxShadow: '0 8px 30px rgba(0,0,0,0.12)' }}
+          >
+            <div className="modal-header" style={{ borderBottom: '1px solid var(--line)', paddingBottom: '14px' }}>
               <div>
-                <p className="modal-eyebrow">{selectedScoreOpp.company}</p>
-                <h2>{selectedScoreOpp.title}</h2>
+                <p style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.04em', fontWeight: 600, color: 'var(--muted)', margin: 0 }}>
+                  {selectedScoreOpp.company}
+                </p>
+                <h2 style={{ fontSize: '17px', fontWeight: 600, margin: '2px 0 0', color: 'var(--ink)' }}>
+                  {selectedScoreOpp.title}
+                </h2>
               </div>
               <button
                 type="button"
                 className="modal-close"
                 onClick={() => setSelectedScoreOpp(null)}
                 aria-label="Close dialog"
+                style={{ fontSize: '16px', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)' }}
               >
                 ✕
               </button>
             </div>
 
-            <div className="modal-score-summary">
-              <div className="modal-score-big">
-                <strong>{selectedScoreOpp.matchScore}%</strong>
-                <span>Overall Qualification Match</span>
-              </div>
-              <div className="modal-status-badge">
-                <span>Eligibility Status:</span>
-                <strong>{selectedScoreOpp.eligibility.replaceAll('_', ' ')}</strong>
-              </div>
+            <div style={{ padding: '16px 0', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <span style={{ fontSize: '13px', color: 'var(--muted)' }}>Qualification Match</span>
+              <strong style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ink)' }}>{selectedScoreOpp.matchScore}%</strong>
             </div>
 
-            <div className="modal-section">
-              <h3>Why you match this role</h3>
-              <ul className="modal-list">
+            <div style={{ padding: '16px 0', borderBottom: '1px solid var(--line)' }}>
+              <h3 style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink)', marginBottom: '8px' }}>Why this role fits</h3>
+              <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '13px', lineHeight: 1.55, color: 'var(--ink-secondary)' }}>
                 {selectedScoreOpp.whyItMatches.map((strength) => (
                   <li key={strength}>{strength}</li>
                 ))}
@@ -251,9 +313,9 @@ export function JobsView({ initialOpportunities }: JobsViewProps) {
             </div>
 
             {selectedScoreOpp.missingRequirements.length > 0 && (
-              <div className="modal-section modal-gap-section">
-                <h3>Potential gaps &amp; missing requirements</h3>
-                <ul className="modal-list">
+              <div style={{ padding: '16px 0', borderBottom: '1px solid var(--line)' }}>
+                <h3 style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink)', marginBottom: '8px' }}>Potential requirement gaps</h3>
+                <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '13px', lineHeight: 1.55, color: 'var(--muted)' }}>
                   {selectedScoreOpp.missingRequirements.map((req) => (
                     <li key={req}>{req}</li>
                   ))}
@@ -261,34 +323,28 @@ export function JobsView({ initialOpportunities }: JobsViewProps) {
               </div>
             )}
 
-            <div className="modal-section">
-              <h3>Tailored Application Materials</h3>
-              <p style={{ fontSize: '13px', color: 'var(--muted)', margin: '4px 0 8px' }}>
-                Recommended master resume variant: <strong>{selectedScoreOpp.recommendedResume}</strong>
+            <div style={{ padding: '16px 0', borderBottom: '1px solid var(--line)' }}>
+              <h3 style={{ fontSize: '13px', fontWeight: 600, color: 'var(--ink)', marginBottom: '4px' }}>Application materials</h3>
+              <p style={{ fontSize: '13px', color: 'var(--muted)', margin: 0 }}>
+                Tailored resume variant: <strong>{selectedScoreOpp.recommendedResume}</strong>
               </p>
-              {selectedScoreOpp.coverLetter && (
-                <details className="materials" style={{ marginTop: '8px' }}>
-                  <summary>Preview drafted cover letter</summary>
-                  <pre>{selectedScoreOpp.coverLetter}</pre>
-                </details>
-              )}
             </div>
 
-            <div className="modal-footer">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '16px' }}>
               <a
                 href={selectedScoreOpp.applicationUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="secondary-button"
+                style={{ fontSize: '13px', color: 'var(--muted)', textDecoration: 'underline' }}
               >
-                Open Official ATS Posting ↗
+                Open posting ↗
               </a>
               <Link
                 href="/review"
                 onClick={() => setSelectedScoreOpp(null)}
                 className="primary-button"
               >
-                Go to Review Queue →
+                Review in Queue →
               </Link>
             </div>
           </div>

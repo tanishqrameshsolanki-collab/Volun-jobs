@@ -17,21 +17,22 @@ export default async function JobsPage() {
   }
 
   return (
-    <main className="profile-page" style={{ maxWidth: '1180px', margin: '0 auto', padding: '38px 32px 70px' }}>
-      <div className="profile-head" style={{ marginBottom: '24px' }}>
+    <main className="profile-page" style={{ maxWidth: '960px', margin: '0 auto', padding: '40px 24px 80px' }}>
+      <div className="profile-head" style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
-          <Link className="back" href="/">
-            ← Dashboard
+          <Link className="back" href="/" style={{ display: 'inline-block', marginBottom: '16px', fontSize: '13px', color: 'var(--muted)' }}>
+            ← Overview
           </Link>
-          <p className="eyebrow accent">Opportunity Discovery</p>
-          <h1>Discovered Jobs</h1>
-          <p className="lead">
-            Explore normalized opportunities discovered across configured ATS endpoints. Review match qualifications, identify requirement gaps, and queue roles for application.
+          <h1 style={{ fontSize: '24px', fontWeight: 600, letterSpacing: '-0.025em', margin: '0 0 6px 0', color: 'var(--ink)' }}>
+            Jobs
+          </h1>
+          <p style={{ color: 'var(--muted)', fontSize: '14px', lineHeight: 1.5, margin: 0, maxWidth: '600px' }}>
+            Opportunities discovered across configured ATS career portals. Filter by qualification match, inspect potential gaps, and prepare applications.
           </p>
         </div>
         <div style={{ alignSelf: 'flex-start' }}>
-          <Link href="/command-center" className="primary-button" style={{ display: 'inline-block' }}>
-            Scan New Jobs <span>→</span>
+          <Link href="/command-center" className="secondary-button" style={{ display: 'inline-block' }}>
+            Scan sources
           </Link>
         </div>
       </div>

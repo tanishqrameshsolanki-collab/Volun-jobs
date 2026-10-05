@@ -10,14 +10,56 @@ interface ApplicationsViewProps {
 
 const STAGES = [
   { id: 'ALL', label: 'All' },
-  { id: 'READY_FOR_REVIEW', label: 'Ready for Review' },
+  { id: 'READY_FOR_REVIEW', label: 'Review' },
   { id: 'APPROVED', label: 'Approved' },
-  { id: 'SUBMITTED', label: 'Applied / Submitted' },
+  { id: 'SUBMITTED', label: 'Submitted' },
   { id: 'OA', label: 'Assessment' },
   { id: 'INTERVIEW', label: 'Interview' },
   { id: 'OFFER', label: 'Offer' },
-  { id: 'REJECTED', label: 'Archived / Rejected' },
+  { id: 'REJECTED', label: 'Archived' },
 ];
+
+function getStatusDotColor(status: string): string {
+  switch (status) {
+    case 'READY_FOR_REVIEW':
+      return '#d97706';
+    case 'APPROVED':
+      return '#16a34a';
+    case 'SUBMITTED':
+    case 'APPLYING':
+      return '#0284c7';
+    case 'OA':
+      return '#7c3aed';
+    case 'INTERVIEW':
+      return '#059669';
+    case 'OFFER':
+      return '#d97706';
+    case 'REJECTED':
+    default:
+      return '#94a3b8';
+  }
+}
+
+function formatStatusLabel(status: string): string {
+  switch (status) {
+    case 'READY_FOR_REVIEW':
+      return 'Ready for review';
+    case 'APPROVED':
+      return 'Approved';
+    case 'SUBMITTED':
+      return 'Submitted';
+    case 'OA':
+      return 'Assessment';
+    case 'INTERVIEW':
+      return 'Interview';
+    case 'OFFER':
+      return 'Offer';
+    case 'REJECTED':
+      return 'Archived';
+    default:
+      return status.replaceAll('_', ' ');
+  }
+}
 
 export function ApplicationsView({ initialApplications }: ApplicationsViewProps) {
   const [applications, setApplications] = useState<ApplicationListItem[]>(initialApplications);
@@ -64,7 +106,7 @@ export function ApplicationsView({ initialApplications }: ApplicationsViewProps)
           item.id === applicationId ? { ...item, status: newStatus as ApplicationListItem['status'] } : item,
         ),
       );
-      setToastMessage(`Application status updated to ${newStatus.replaceAll('_', ' ')}`);
+      setToastMessage(`Status updated to ${formatStatusLabel(newStatus)}`);
       setTimeout(() => setToastMessage(null), 3500);
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Failed to update status');
@@ -78,133 +120,164 @@ export function ApplicationsView({ initialApplications }: ApplicationsViewProps)
       {/* Toast Feedback */}
       {toastMessage && (
         <div className="app-toast" role="status" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
           {toastMessage}
         </div>
       )}
 
-      {/* Stage Tabs */}
-      <div className="pipeline-tabs" role="tablist">
-        {STAGES.map((stage) => {
-          const count = stage.id === 'ALL' ? applications.length : (stageCounts[stage.id] ?? 0);
-          return (
-            <button
-              key={stage.id}
-              role="tab"
-              aria-selected={activeStage === stage.id}
-              onClick={() => setActiveStage(stage.id)}
-              className={`pipeline-tab ${activeStage === stage.id ? 'active' : ''}`}
-            >
-              <span>{stage.label}</span>
-              <span className="tab-count">{count}</span>
-            </button>
-          );
-        })}
+      {/* Control bar: Stage Tabs + Search */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
+        <div className="pipeline-tabs" role="tablist">
+          {STAGES.map((stage) => {
+            const count = stage.id === 'ALL' ? applications.length : (stageCounts[stage.id] ?? 0);
+            return (
+              <button
+                key={stage.id}
+                role="tab"
+                aria-selected={activeStage === stage.id}
+                onClick={() => setActiveStage(stage.id)}
+                className={`pipeline-tab ${activeStage === stage.id ? 'active' : ''}`}
+              >
+                <span>{stage.label}</span>
+                <span className="tab-count">{count}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div style={{ width: '260px' }}>
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Filter by company or role…"
+            aria-label="Filter applications"
+            style={{
+              width: '100%',
+              padding: '7px 12px',
+              fontSize: '13px',
+              border: '1px solid var(--line)',
+              borderRadius: 'var(--radius-sm)',
+              background: '#ffffff',
+              color: 'var(--ink)',
+            }}
+          />
+        </div>
       </div>
 
-      {/* Search Bar */}
-      <div className="search-box" style={{ margin: '20px 0' }}>
-        <input
-          type="search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Filter tracked applications by company or role…"
-          aria-label="Filter applications"
-        />
-      </div>
-
-      {/* Applications List */}
+      {/* Applications Table */}
       {filtered.length > 0 ? (
-        <div className="app-list">
-          {filtered.map((app) => (
-            <article key={app.id} className="app-row-card">
-              <div className="app-row-main">
-                <div className="app-row-header">
-                  <span className="app-company">{app.company}</span>
-                  <span className={`app-status-badge status-${app.status.toLowerCase()}`}>
-                    {app.status.replaceAll('_', ' ')}
+        <div className="app-table-container">
+          <div className="app-table-head">
+            <span style={{ width: '180px' }}>Company</span>
+            <span style={{ flex: 1, minWidth: '220px' }}>Role</span>
+            <span style={{ width: '170px' }}>Status</span>
+            <span style={{ width: '80px', textAlign: 'right' }}>Match</span>
+            <span style={{ width: '120px', textAlign: 'right' }}>Date</span>
+            <span style={{ width: '140px', textAlign: 'right' }}>Action</span>
+          </div>
+
+          <div className="app-table-body">
+            {filtered.map((app) => (
+              <div key={app.id} className="app-table-row">
+                {/* Company & Location */}
+                <div className="app-cell app-cell-company" style={{ width: '180px' }}>
+                  <span className="app-company-name">{app.company}</span>
+                  <span className="app-location-sub">{app.location || 'Remote'}</span>
+                </div>
+
+                {/* Role Title */}
+                <div className="app-cell app-cell-title" style={{ flex: 1, minWidth: '220px' }}>
+                  <span className="app-role-name">{app.title}</span>
+                  <span className="app-variant-sub">
+                    {app.resumeVariant.replace('resume_', '').replace('_', ' ')}
                   </span>
                 </div>
-                <h3 className="app-title">{app.title}</h3>
-                <div className="app-meta-row">
-                  <span>{app.location || 'Remote'}</span>
-                  <span>·</span>
-                  <span>Match: <strong>{app.matchScore}%</strong></span>
-                  <span>·</span>
-                  <span>Resume: {app.resumeVariant.replace('resume_', '').replace('_', ' ')}</span>
-                  {app.submittedAt && (
-                    <>
-                      <span>·</span>
-                      <span>Submitted: {new Date(app.submittedAt).toLocaleDateString()}</span>
-                    </>
-                  )}
-                </div>
-              </div>
 
-              <div className="app-row-actions">
-                <div className="status-changer">
-                  <label htmlFor={`status-select-${app.id}`} className="sr-only">Update Status</label>
-                  <select
-                    id={`status-select-${app.id}`}
-                    value={app.status}
-                    disabled={updatingId === app.id}
-                    onChange={(e) => updateStatus(app.id, e.target.value)}
-                    className="select-status"
-                  >
-                    <option value="READY_FOR_REVIEW">Ready for Review</option>
-                    <option value="APPROVED">Approved</option>
-                    <option value="SUBMITTED">Submitted / Applied</option>
-                    <option value="OA">Assessment / OA</option>
-                    <option value="INTERVIEW">Interview Scheduled</option>
-                    <option value="OFFER">Offer Received</option>
-                    <option value="REJECTED">Archived / Rejected</option>
-                  </select>
+                {/* Status Column */}
+                <div className="app-cell app-cell-status" style={{ width: '170px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span
+                      style={{
+                        width: '7px',
+                        height: '7px',
+                        borderRadius: '50%',
+                        backgroundColor: getStatusDotColor(app.status),
+                        display: 'inline-block',
+                        flexShrink: 0,
+                      }}
+                    />
+                    <select
+                      id={`status-select-${app.id}`}
+                      aria-label={`Status for ${app.title} at ${app.company}`}
+                      value={app.status}
+                      disabled={updatingId === app.id}
+                      onChange={(e) => updateStatus(app.id, e.target.value)}
+                      className="app-status-select"
+                    >
+                      <option value="READY_FOR_REVIEW">Ready for review</option>
+                      <option value="APPROVED">Approved</option>
+                      <option value="SUBMITTED">Submitted</option>
+                      <option value="OA">Assessment</option>
+                      <option value="INTERVIEW">Interview</option>
+                      <option value="OFFER">Offer</option>
+                      <option value="REJECTED">Archived</option>
+                    </select>
+                  </div>
                 </div>
 
-                <div className="button-group">
+                {/* Match Score */}
+                <div className="app-cell app-cell-match" style={{ width: '80px', textAlign: 'right' }}>
+                  <span className="app-match-number">{app.matchScore}%</span>
+                </div>
+
+                {/* Date */}
+                <div className="app-cell app-cell-date" style={{ width: '120px', textAlign: 'right' }}>
+                  <span className="app-date-text">
+                    {app.submittedAt
+                      ? new Date(app.submittedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+                      : 'Draft'}
+                  </span>
+                </div>
+
+                {/* Action Links */}
+                <div className="app-cell app-cell-actions" style={{ width: '140px', textAlign: 'right' }}>
                   {app.status === 'READY_FOR_REVIEW' && (
-                    <Link href="/review" className="primary-button" style={{ padding: '8px 14px', fontSize: '12px' }}>
-                      Review Now →
+                    <Link href="/review" className="app-action-link" style={{ marginRight: '10px' }}>
+                      Review →
                     </Link>
                   )}
                   {app.status === 'INTERVIEW' && (
-                    <Link href="/interviews" className="primary-button" style={{ padding: '8px 14px', fontSize: '12px' }}>
-                      Interview Prep →
+                    <Link href="/interviews" className="app-action-link" style={{ marginRight: '10px' }}>
+                      Prep →
                     </Link>
                   )}
                   <a
                     href={app.applicationUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="secondary-button"
-                    style={{ padding: '8px 12px', fontSize: '12px' }}
+                    className="app-action-link-secondary"
                   >
-                    ATS Link ↗
+                    ATS ↗
                   </a>
                 </div>
               </div>
-            </article>
-          ))}
+            ))}
+          </div>
         </div>
       ) : (
-        <div className="empty-state">
-          <span className="empty-icon" style={{ background: 'var(--line-subtle)', borderRadius: '8px', width: '38px', height: '38px', margin: '0 auto 12px', display: 'grid', placeItems: 'center' }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-          </span>
-          <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ink)' }}>No applications in this pipeline stage</h3>
-          <p style={{ color: 'var(--muted)', fontSize: '13px', margin: '4px auto 16px', maxWidth: '440px' }}>
-            {activeStage === 'ALL'
-              ? 'You have not added or qualified any applications yet. Scan public opportunities or review recommended roles.'
-              : `No applications currently have status "${activeStage.replaceAll('_', ' ')}".`}
+        <div className="empty-state" style={{ padding: '60px 20px', textAlign: 'center' }}>
+          <p style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ink)', margin: '0 0 6px' }}>
+            No applications in this view.
           </p>
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
-            <Link href="/jobs" className="primary-button">
-              Explore Discovered Jobs <span>→</span>
-            </Link>
-            <Link href="/review" className="secondary-button">
-              Open Review Queue <span>→</span>
-            </Link>
-          </div>
+          <p style={{ color: 'var(--muted)', fontSize: '13px', margin: '0 0 20px' }}>
+            {activeStage === 'ALL'
+              ? 'Your applications will appear here as you review and apply to opportunities.'
+              : `No applications currently have status "${formatStatusLabel(activeStage)}".`}
+          </p>
+          <Link href="/jobs" className="secondary-button">
+            Find opportunities <span>→</span>
+          </Link>
         </div>
       )}
     </div>

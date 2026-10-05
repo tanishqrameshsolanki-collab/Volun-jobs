@@ -12,12 +12,12 @@ type ActionKind =
   | 'sync';
 
 type Action =
-  | { title: string; description: string; kind: 'scan' }
-  | { title: string; description: string; kind: 'analyze' }
-  | { title: string; description: string; kind: 'generate' }
-  | { title: string; description: string; kind: 'link'; href: string }
-  | { title: string; description: string; kind: 'run-approved' }
-  | { title: string; description: string; kind: 'sync' };
+  | { step: string; title: string; description: string; kind: 'scan'; buttonText: string }
+  | { step: string; title: string; description: string; kind: 'analyze'; buttonText: string }
+  | { step: string; title: string; description: string; kind: 'generate'; buttonText: string }
+  | { step: string; title: string; description: string; kind: 'link'; href: string; buttonText: string }
+  | { step: string; title: string; description: string; kind: 'run-approved'; buttonText: string }
+  | { step: string; title: string; description: string; kind: 'sync'; buttonText: string };
 
 type SourceHealth = {
   company: string;
@@ -38,35 +38,47 @@ type PipelineStats = {
 
 const actions: Action[] = [
   {
-    title: 'SCAN JOBS',
-    description: 'Discover configured public sources and collect opportunities.',
+    step: '01',
+    title: 'Discover jobs',
+    description: 'Scan configured Greenhouse, Lever, and public career pages for newly posted opportunities.',
     kind: 'scan',
+    buttonText: 'Run discovery',
   },
   {
-    title: 'ANALYZE NEW JOBS',
-    description: 'Normalize, check eligibility, and score unscored roles.',
+    step: '02',
+    title: 'Evaluate candidate fit',
+    description: 'Normalize roles, verify graduation and work authorization eligibility, and calculate match scores.',
     kind: 'analyze',
+    buttonText: 'Evaluate roles',
   },
   {
-    title: 'GENERATE APPLICATIONS',
-    description: 'Prepare tailored resume variants and cover letter drafts.',
+    step: '03',
+    title: 'Prepare application drafts',
+    description: 'Select tailored resume variants and draft grounded cover letters for high-match opportunities.',
     kind: 'generate',
+    buttonText: 'Prepare drafts',
   },
   {
-    title: 'REVIEW APPLICATIONS',
-    description: 'Open the human approval queue and make decisions.',
+    step: '04',
+    title: 'Human review queue',
+    description: 'Inspect tailored materials, answer screening questions, and approve or skip applications.',
     kind: 'link',
     href: '/review',
+    buttonText: 'Open review queue',
   },
   {
-    title: 'RUN APPROVED APPLICATIONS',
-    description: 'Prepare and inspect permitted automated form submissions.',
+    step: '05',
+    title: 'Submission readiness check',
+    description: 'Inspect approved applications and verify automated form submission safety before dispatch.',
     kind: 'run-approved',
+    buttonText: 'Verify approved',
   },
   {
-    title: 'SYNC APPLICATION STATUS',
-    description: 'Refresh tracked pipeline outcomes and application states.',
+    step: '06',
+    title: 'Synchronize pipeline',
+    description: 'Refresh application tracking outcomes, assessment requests, and external ATS states.',
     kind: 'sync',
+    buttonText: 'Sync pipeline',
   },
 ];
 
@@ -317,14 +329,18 @@ export default function CommandCenter() {
   }
 
   return (
-    <main className="command">
-      <div className="command-top-bar">
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <Link className="back" href="/">
-            ← Dashboard
+    <main className="profile-page" style={{ maxWidth: '1040px', margin: '0 auto', padding: '36px 32px 72px' }}>
+      {/* Top navigation */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ display: 'flex', gap: '18px', alignItems: 'center' }}>
+          <Link className="back" href="/" style={{ margin: 0 }}>
+            ← Overview
           </Link>
           <Link href="/review" style={{ fontSize: '13px', color: 'var(--muted)' }}>
-            Review Queue
+            Review queue
+          </Link>
+          <Link href="/applications" style={{ fontSize: '13px', color: 'var(--muted)' }}>
+            Applications
           </Link>
           <Link href="/profile" style={{ fontSize: '13px', color: 'var(--muted)' }}>
             Profile
@@ -332,136 +348,212 @@ export default function CommandCenter() {
           <Link href="/settings" style={{ fontSize: '13px', color: 'var(--muted)' }}>
             Settings
           </Link>
-          <Link href="/analytics" style={{ fontSize: '13px', color: 'var(--muted)' }}>
-            Analytics
-          </Link>
         </div>
-        <div className="auth-badge">
+
+        <div style={{ fontSize: '12px', color: 'var(--muted)' }}>
           {userEmail ? (
-            <>
-              <span>Signed in as <strong>{userEmail}</strong></span>
-              <button onClick={handleSignOut} type="button">
+            <span>
+              Signed in as <strong style={{ color: 'var(--ink)' }}>{userEmail}</strong> ·{' '}
+              <button
+                onClick={handleSignOut}
+                type="button"
+                style={{ background: 'none', border: 'none', padding: 0, color: 'var(--muted)', cursor: 'pointer', textDecoration: 'underline' }}
+              >
                 Sign out
               </button>
-            </>
+            </span>
           ) : (
-            <>
-              <span>Sign in to run private operations</span>
-              <Link
-                href="/login"
-                className="primary-button"
-                style={{ padding: '5px 12px', fontSize: '11px' }}
-              >
-                Sign In
-              </Link>
-            </>
+            <Link href="/login" style={{ color: 'var(--ink)', textDecoration: 'underline' }}>
+              Sign in to run private operations →
+            </Link>
           )}
         </div>
       </div>
 
-      <p className="eyebrow accent">Operations</p>
-      <h1>Command center</h1>
-      <p className="lead">
-        Run the pipeline deliberately. Every action will show progress and
-        preserve a review gate before submission.
-      </p>
+      {/* Page Header */}
+      <div className="desk-briefing" style={{ paddingBottom: '20px', marginBottom: '28px' }}>
+        <h1 style={{ fontSize: '26px', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--ink)', margin: '0 0 6px' }}>
+          Operations console
+        </h1>
+        <p className="desk-lead" style={{ margin: 0 }}>
+          Execute pipeline operations deliberately. Each operation maintains strict factual accuracy and requires your explicit approval before application submission.
+        </p>
 
-      {stats && (
-        <div className="command-stats-strip" aria-label="Pipeline overview">
-          <div className="command-stat-item">
-            <span>Discovered Jobs</span>
-            <strong>{stats.totalJobs.toLocaleString()}</strong>
-          </div>
-          <div className="command-stat-item">
-            <span>Ready for Review</span>
-            <strong>{stats.readyForReview.toLocaleString()}</strong>
-          </div>
-          <div className="command-stat-item">
-            <span>Approved</span>
-            <strong>{stats.approved.toLocaleString()}</strong>
-          </div>
-          <div className="command-stat-item">
-            <span>Job Sources</span>
-            <strong>{stats.sourcesConfigured} Active</strong>
-          </div>
-        </div>
-      )}
-
-      <div className="command-grid">
-        {actions.map((action) =>
-          action.kind === 'link' ? (
-            <Link
-              className="command-card"
-              href={action.href}
-              key={action.title}
-            >
-              <span>{action.title}</span>
-              <small>{action.description}</small>
-              <b>→</b>
-            </Link>
-          ) : (
-            <button
-              className="command-card"
-              disabled={Boolean(busyAction)}
-              key={action.title}
-              onClick={() => handleAction(action)}
-              type="button"
-            >
-              <span>
-                {busyAction === action.kind
-                  ? 'PROCESSING…'
-                  : action.title}
+        {/* Pipeline Summary Line */}
+        {stats && (
+          <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', marginTop: '20px', paddingTop: '16px', borderTop: '1px solid var(--line)' }}>
+            <div>
+              <span style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block' }}>
+                Discovered jobs
               </span>
-              <small>{action.description}</small>
-              <b>→</b>
-            </button>
-          ),
+              <strong style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ink)' }}>
+                {stats.totalJobs.toLocaleString()}
+              </strong>
+            </div>
+            <div>
+              <span style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block' }}>
+                Ready for review
+              </span>
+              <strong style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ink)' }}>
+                {stats.readyForReview.toLocaleString()}
+              </strong>
+            </div>
+            <div>
+              <span style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block' }}>
+                Approved
+              </span>
+              <strong style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ink)' }}>
+                {stats.approved.toLocaleString()}
+              </strong>
+            </div>
+            <div>
+              <span style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'block' }}>
+                Active sources
+              </span>
+              <strong style={{ fontSize: '18px', fontWeight: 600, color: 'var(--ink)' }}>
+                {stats.sourcesConfigured}
+              </strong>
+            </div>
+          </div>
         )}
       </div>
 
+      {/* Operations List */}
+      <div style={{ borderTop: '1px solid var(--line)' }}>
+        {actions.map((action) => (
+          <div
+            key={action.title}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '24px',
+              padding: '18px 0',
+              borderBottom: '1px solid var(--line)',
+            }}
+          >
+            <div style={{ display: 'flex', gap: '20px', alignItems: 'baseline', flex: 1 }}>
+              <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--muted)', fontVariantNumeric: 'tabular-nums', width: '24px' }}>
+                {action.step}
+              </span>
+              <div>
+                <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ink)', margin: '0 0 3px' }}>
+                  {action.title}
+                </h3>
+                <p style={{ fontSize: '13px', color: 'var(--muted)', margin: 0, lineHeight: 1.45 }}>
+                  {action.description}
+                </p>
+              </div>
+            </div>
+
+            <div style={{ flexShrink: 0 }}>
+              {action.kind === 'link' ? (
+                <Link href={action.href} className="secondary-button">
+                  {action.buttonText} <span>→</span>
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  disabled={Boolean(busyAction)}
+                  onClick={() => handleAction(action)}
+                  className="secondary-button"
+                >
+                  {busyAction === action.kind ? 'Processing…' : action.buttonText} <span>→</span>
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Operation Feedback Message */}
       {status && (
-        <p className="command-status" role="status">
+        <div
+          role="status"
+          style={{
+            marginTop: '28px',
+            padding: '14px 18px',
+            border: '1px solid var(--line)',
+            borderRadius: 'var(--radius-sm)',
+            background: 'var(--surface-hover)',
+            fontSize: '13px',
+            color: 'var(--ink)',
+            lineHeight: 1.5,
+          }}
+        >
           {status}
           {needsLogin && (
-            <>
-              {' '}
+            <div style={{ marginTop: '8px', display: 'flex', gap: '12px', alignItems: 'center' }}>
               <button
-                className="quick-login-btn"
                 onClick={quickLogin}
-                style={{ marginLeft: 8 }}
                 type="button"
+                className="primary-button"
+                style={{ fontSize: '12px', padding: '5px 12px' }}
               >
-                1-Click Sign In →
-              </button>{' '}
-              <Link href="/login">Email link →</Link>
-            </>
-          )}
-        </p>
-      )}
-
-      {health.length > 0 && (
-        <div className="source-health" aria-label="Job source health">
-          <h2>Source health ({health.filter((s) => s.status === 'HEALTHY').length}/{health.length} Healthy)</h2>
-          {health.map((source) => (
-            <div
-              className="source-health-row"
-              key={`${source.source}-${source.company}`}
-            >
-              <span>{source.company} ({source.source})</span>
-              <strong>{source.status}</strong>
-              <small>{source.jobs_found} jobs found</small>
-              {source.error && <small>{source.error}</small>}
+                Sign in with candidate session
+              </button>
+              <Link href="/login" style={{ fontSize: '12px', color: 'var(--ink)', textDecoration: 'underline' }}>
+                Email sign in →
+              </Link>
             </div>
-          ))}
+          )}
         </div>
       )}
 
+      {/* Source Health Table */}
+      {health.length > 0 && (
+        <div style={{ marginTop: '40px' }}>
+          <h2 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ink)', margin: '0 0 12px' }}>
+            Job source health ({health.filter((s) => s.status === 'HEALTHY').length} of {health.length} healthy)
+          </h2>
+          <div style={{ borderTop: '1px solid var(--line)' }}>
+            {health.map((source) => (
+              <div
+                key={`${source.source}-${source.company}`}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '12px 0',
+                  borderBottom: '1px solid var(--line)',
+                  fontSize: '13px',
+                }}
+              >
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <span
+                    style={{
+                      width: '6px',
+                      height: '6px',
+                      borderRadius: '50%',
+                      backgroundColor: source.status === 'HEALTHY' ? '#16a34a' : '#dc2626',
+                    }}
+                  />
+                  <span style={{ fontWeight: 500, color: 'var(--ink)' }}>{source.company}</span>
+                  <span style={{ color: 'var(--muted)', fontSize: '12px' }}>({source.source})</span>
+                </div>
+                <div style={{ display: 'flex', gap: '20px', alignItems: 'center', color: 'var(--muted)', fontSize: '12px' }}>
+                  <span>{source.jobs_found} jobs found</span>
+                  {source.error && <span style={{ color: '#dc2626' }}>{source.error}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Items Needing Attention */}
       {errors.length > 0 && (
-        <div className="source-health" aria-label="Scan errors">
-          <h2>Items needing attention</h2>
-          {errors.slice(0, 20).map((error) => (
-            <p key={error}>{error}</p>
-          ))}
+        <div style={{ marginTop: '36px' }}>
+          <h2 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--ink)', margin: '0 0 10px' }}>
+            Items needing attention
+          </h2>
+          <div style={{ borderTop: '1px solid var(--line)' }}>
+            {errors.slice(0, 15).map((error) => (
+              <p key={error} style={{ fontSize: '13px', color: 'var(--muted)', padding: '8px 0', borderBottom: '1px solid var(--line)', margin: 0 }}>
+                {error}
+              </p>
+            ))}
+          </div>
         </div>
       )}
     </main>
