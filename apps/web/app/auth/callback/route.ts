@@ -7,7 +7,12 @@ export async function GET(request: Request) {
   const errorDescription =
     requestUrl.searchParams.get('error_description') ||
     requestUrl.searchParams.get('error');
-  const next = requestUrl.searchParams.get('next') || '/command-center';
+  const requestedNext = requestUrl.searchParams.get('next') ?? '';
+  // Only allow same-origin relative paths to avoid open redirects.
+  const next =
+    requestedNext.startsWith('/') && !requestedNext.startsWith('//')
+      ? requestedNext
+      : '/command-center';
 
   if (errorDescription) {
     return NextResponse.redirect(
