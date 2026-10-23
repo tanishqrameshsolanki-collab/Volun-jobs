@@ -3,6 +3,17 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { getSupabaseConfig } from './config';
 
 export async function updateSession(request: NextRequest) {
+  // Supabase falls back to the Site URL (e.g. `/?code=…`) when the requested
+  // redirect is not allow-listed; route those codes through the callback.
+  const authCode = request.nextUrl.searchParams.get('code');
+  if (authCode && request.nextUrl.pathname !== '/auth/callback') {
+    const callbackUrl = request.nextUrl.clone();
+    callbackUrl.pathname = '/auth/callback';
+    callbackUrl.search = '';
+    callbackUrl.searchParams.set('code', authCode);
+    return NextResponse.redirect(callbackUrl);
+  }
+
   let supabaseResponse = NextResponse.next({ request });
   let url: string;
   let publishableKey: string;
